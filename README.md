@@ -2,6 +2,7 @@
 # [NOMBRE DEL PROYECTO]
 ### Nombre y carné de los integrantes: 
 Alejandro Vindas Cerdas - 20204800061
+
 Giovanni Esquivel Cortés - 2024800085
 
 ### Estado del proyecto:

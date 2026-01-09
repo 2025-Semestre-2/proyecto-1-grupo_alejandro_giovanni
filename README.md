@@ -2,9 +2,7 @@
 # [SISTEMA DE GESTIÓN HOTELERA]
 ### Nombre y carné de los integrantes: 
 Alejandro Vindas Cerdas - 20204800061
-
 Giovanni Esquivel Cortés - 2024800085
 
-### Estado del proyecto:
-### Enlace del video:
+### Estado del proyecto: Bueno
 Recordar que el video debe ser público para ser visto por el profesor

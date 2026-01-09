@@ -5,4 +5,5 @@ Alejandro Vindas Cerdas - 20204800061
 Giovanni Esquivel Cortés - 2024800085
 
 ### Estado del proyecto: Bueno
+### Enlace a documentación: https://drive.google.com/file/d/1aWE_yAHYHmYjI4cbwXd_ap0dmnTvlq8I/view?usp=drive_link
 Recordar que el video debe ser público para ser visto por el profesor

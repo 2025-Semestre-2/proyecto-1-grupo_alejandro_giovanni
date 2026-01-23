@@ -1,0 +1,82 @@
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.buttonMain {
+  border-radius: 8px;
+  border: 2px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: #ffffff;
+  background-color: limegreen;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.buttonSub {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  border-color: limegreen;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: limegreen;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+
+.buttonSub2 {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: limegreen;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.buttonLogo{
+  font-size: 3em;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.buttonMain:hover {
+  border-color: white;
+}
+
+.buttonSub:hover {
+  background-color: #eeeeee;
+}
+
+.buttonSub2:hover {
+  border-color: limegreen;
+}
+
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/*Imagen inferior*/
+
+.heroImage {
+  flex: 1;
+  width: 100%;
+  margin-top: 2rem;
+  border-top: 3px solid;
+
+  background-image: url("../hero.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}

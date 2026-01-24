@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "./PageTop.css";
 
 function PageTop() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   return (
     <>
@@ -25,10 +28,12 @@ function PageTop() {
         <button className="buttonSub">Experiencias</button>
       </div>
 
-      <div></div>
-
-      <h1>Encuentra tu siguiente estadía</h1>
-      <h2>Hoteles, departamentos, y mucho más...</h2>
+      {isHome && (
+        <>
+          <h1>Encuentra tu siguiente estadía</h1>
+          <h2>Hoteles, departamentos, y mucho más...</h2>
+        </>
+      )}
 
       <div className="searchBar">
         <div className="searchSegment">

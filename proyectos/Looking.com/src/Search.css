@@ -1,0 +1,107 @@
+.searchPage {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+/* Filtros */
+.filters {
+  width: 260px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.filterGroup {
+  margin-bottom: 1.25rem;
+}
+
+.filterGroup label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.rangeFilter > label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filterValue {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filters input[type="range"] {
+  width: 100%;
+}
+
+
+/* Derecha */
+.results {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Cartas */
+.roomCard {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.roomCard:hover {
+  transform: translateY(-4px);
+}
+
+.roomImage {
+  height: 160px;
+  background: #ddd;
+  background-size: cover;
+  background-position: center;
+}
+
+.roomInfo {
+  padding: 0.75rem 1rem;
+}
+
+.roomInfo h4 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.roomDesc {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.25rem 0;
+}
+
+.roomMeta {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.roomPrice {
+  font-weight: 700;
+  margin-top: 0.5rem;
+}

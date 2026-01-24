@@ -1,0 +1,125 @@
+/* Titulo */
+.previewHeader {
+  max-width: 1280px;
+  margin: 1.5rem auto 1rem;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.roomTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.companyName {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 0.15rem;
+}
+
+.roomLocation {
+  font-size: 0.95rem;
+  color: #777;
+}
+
+/* Imagen */
+.previewImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  overflow: hidden;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.imageNav.left {
+  left: 1rem;
+}
+
+.imageNav.right {
+  right: 1rem;
+}
+
+/* Columna Izquierda */
+.previewContent {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.previewLeft {
+  flex: 2;
+}
+
+.previewLeft section {
+  margin-bottom: 1.75rem;
+}
+
+.previewLeft h3 {
+  margin-bottom: 0.5rem;
+}
+
+.bedList {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+}
+
+.amenitiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Columna Derecha */
+.previewRight {
+  flex: 1;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.dateRange {
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.availability {
+  margin: 0.5rem 0;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0;
+}
+
+.price span {
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.fullWidth {
+  width: 100%;
+}

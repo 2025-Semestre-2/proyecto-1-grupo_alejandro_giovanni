@@ -1,0 +1,115 @@
+.logoCenter {
+    display: flex;
+    justify-content: center;
+}
+
+.textCenter {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.marginLoss h1{
+    line-height: 0;
+}
+
+.smallLogo {
+    font-size: 2em
+}
+
+/*Pasos*/
+
+.stepIndicator {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  user-select: none;
+}
+
+.stepCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid limegreen;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepCircle.active {
+  background: limegreen;
+  color: white;
+}
+
+/*Residuo*/
+
+.bookPage {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formColumn label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.formColumn input,
+.formColumn select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.dateRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+}
+
+.dateLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #555;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.cancel {
+  background: #ccc;
+  color: black;
+}
+
+.checkImage {
+  width: 120px;
+  height: auto;
+  margin: 1.5rem auto;
+  display: block;
+}
+
+.bookingStep.success {
+  text-align: center;
+}

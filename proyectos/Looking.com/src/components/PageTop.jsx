@@ -17,8 +17,8 @@ function PageTop() {
         </div>
 
         <div className="headerActions">
-          <button className="buttonSub2">Registrar Empresa</button>
-          <button className="buttonMain">Crear Cuenta</button>
+          <button className="buttonSub2" onClick={() => navigate("/signupCompany")}>Registrar Empresa</button>
+          <button className="buttonMain" onClick={() => navigate("/signupUser")}>Crear Cuenta</button>
           <button className="buttonMain" onClick={() => navigate("/login")}>Iniciar Sesión</button>
         </div>
       </div>

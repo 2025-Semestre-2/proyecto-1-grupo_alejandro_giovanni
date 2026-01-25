@@ -5,6 +5,8 @@ import Preview from "./Preview"
 import Book from "./Book"
 import Profile from "./Profile"
 import Login from "./Login"
+import SignupUser from "./SignupUser"
+import SignupCompany from "./SignupCompany"
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
       <Route path="/book/:id" element={<Book />} />
       <Route path="/profile/:userid" element={<Profile />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/signupUser" element={<SignupUser />} />
+      <Route path="/signupCompany" element={<SignupCompany />} />
     </Routes>
   );
 }

@@ -17,7 +17,7 @@ function Login() {
 
         <p className="loginLinks">
           ¿No tienes una cuenta?{" "}
-          <span onClick={() => navigate("/signup")}>Crear Cuenta</span>
+          <span onClick={() => navigate("/signup-user")}>Crear Cuenta</span>
           <br />
           ¿No has registrado tu empresa?{" "}
           <span onClick={() => navigate("/register-business")}>

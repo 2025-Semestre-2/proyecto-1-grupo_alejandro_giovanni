@@ -1,0 +1,124 @@
+.profilePage {
+  max-width: 1100px;
+  margin: 1rem auto;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 2.5rem;
+}
+
+.profilePage h2 {
+  font-size: 1.4rem;
+  margin: 0 0 1rem;
+  text-align: left;
+  line-height: 1.2;
+}
+
+/* Izquierda */
+.profileLeft h2,
+.profileRight h2 {
+  margin-bottom: 1rem;
+}
+
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userIcon {
+  font-size: 64px;
+  color: #bbb;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.infoRow small,
+.infoBlock small {
+  color: #777;
+  font-size: 0.75rem;
+}
+
+.infoBlock > div {
+  margin-bottom: 1rem;
+}
+
+.addressBlock p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.profileButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.delete {
+  background: #d9534f;
+  color: white;
+}
+
+/* Derecha */
+.profileRight {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.historyWrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.arrow {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.historyCard {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.historyCard:hover {
+  transform: translateY(-4px);
+}
+
+.historyImage {
+  height: 160px;
+  background: #ddd;
+}
+
+.historyInfo {
+  padding: 1rem;
+}
+
+.muted {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.priceBlock {
+  margin-top: 1rem;
+}
+
+.priceBlock ul {
+  padding-left: 1rem;
+  margin: 0.5rem 0 0;
+}
+
+.priceBlock li {
+  font-size: 0.85rem;
+}

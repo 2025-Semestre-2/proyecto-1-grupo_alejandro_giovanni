@@ -11,7 +11,7 @@ function BookingStep3({ navigate }) {
 
       <button
         className="buttonMain"
-        onClick={() => navigate("/historial")}
+        onClick={() => navigate(`/profile/${2}`)}
       >
         Ir a Mi Historial
       </button>

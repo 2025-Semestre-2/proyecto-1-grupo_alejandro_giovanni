@@ -8,7 +8,7 @@ import "./Book.css";
 
 function Book() {
   const navigate = useNavigate();
-  const { roomId } = useParams();
+  const { id } = useParams();
 
   const [step, setStep] = useState(1);
 

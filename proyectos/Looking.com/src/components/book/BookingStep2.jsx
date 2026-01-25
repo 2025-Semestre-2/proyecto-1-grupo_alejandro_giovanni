@@ -24,7 +24,7 @@ function BookingStep2({ bookingData, next, back, cancel }) {
           </p>
 
           <ul>
-            <li>- Amenidad: ₡5,000</li>
+            <li>Amenidad: ₡5,000</li>
           </ul>
         </div>
 

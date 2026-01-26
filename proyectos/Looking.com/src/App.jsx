@@ -7,6 +7,7 @@ import Profile from "./Profile"
 import Login from "./Login"
 import SignupUser from "./SignupUser"
 import SignupCompany from "./SignupCompany"
+import HomeCompany from "./HomeCompany"
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signupUser" element={<SignupUser />} />
       <Route path="/signupCompany" element={<SignupCompany />} />
+      <Route path="/homeCompany" element={<HomeCompany />} />
     </Routes>
   );
 }

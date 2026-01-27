@@ -9,10 +9,17 @@ import SignupUser from "./SignupUser"
 import SignupCompany from "./SignupCompany"
 import CompanyProfile from "./CompanyProfile"
 import CompanyServices from "./CompanyServices"
+import CompanyActivities from "./CompanyActivities"
 import CompanyBookings from "./CompanyBookings"
 import CompanyReports from "./CompanyReports"
 import AdminUsers from "./AdminUsers"
-import AdminCompanies from "./AdminCompanies"
+import AdminCompaniesHosting from "./AdminCompaniesHosting"
+import AdminCompaniesEntertainment from "./AdminCompaniesEntertainment"
+import EditUserInfo from "./EditUserInfo"
+import EditCompanyInfo from "./EditCompanyInfo"
+import EditRoomInfo from "./EditRoomInfo"
+import EditActivityInfo from "./EditActivityInfo"
+import PasswordChange from "./PasswordChange"
 
 function App() {
   return (
@@ -27,11 +34,17 @@ function App() {
       <Route path="/signupCompany" element={<SignupCompany />} />
       <Route path="/companyProfile/:companyid" element={<CompanyProfile />} />
       <Route path="/companyServices" element={<CompanyServices />} />
+      <Route path="/companyActivities" element={<CompanyActivities />} />
       <Route path="/companyBookings" element={<CompanyBookings />} />
       <Route path="/companyReports" element={<CompanyReports />} />
       <Route path="/adminUsers" element={<AdminUsers />} />
-      <Route path="/adminCompanies" element={<AdminCompanies />} />
-
+      <Route path="/adminCompaniesHosting" element={<AdminCompaniesHosting />} />
+      <Route path="/adminCompaniesEntertainment" element={<AdminCompaniesEntertainment />} />
+      <Route path="/editUserInfo/:userid" element={<EditUserInfo />} />
+      <Route path="/editCompanyInfo/:companyid" element={<EditCompanyInfo />} />
+      <Route path="/editRoomInfo/:roomid" element={<EditRoomInfo />} />
+      <Route path="/editActivityInfo/:activityid" element={<EditActivityInfo />} />
+      <Route path="/passwordChange/:role/:id" element={<PasswordChange />} />
     </Routes>
   );
 }

@@ -1,30 +1,32 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { GoogleMap, Marker, useJsApiLoader, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import COSTA_RICA_LOCATIONS from "./data/crLocations";
 import "./SignupUser.css";
 
-function SignupCompany() {
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
+const MOCK_COMPANY = {
+  companyType: "Hotel",
+  legalId: "3-101-123456",
+  email: "hotelmock@example.com",
+  phone: "88881234",
+  phone2: "87771234",
+  name: "Hotel Mockup",
+  province: "San José",
+  canton: "Central",
+  district: "Carmen",
+  neighborhood: "Barrio Central",
+  exactAddress: "Avenida Central 123",
+  website: "https://www.hotelmock.com",
+  amenities: ["Wifi", "Piscina"],
+  location: { lat: 9.9333, lng: -84.0833 },
+};
 
-  const [form, setForm] = useState({
-    companyType: "",
-    legalId: "",
-    email: "",
-    phone: "",
-    phone2: "",
-    name: "",
-    province: "",
-    canton: "",
-    district: "",
-    neighborhood: "",
-    exactAddress: "",
-    website: "",
-    password: "",
-    amenities: [],
-  });
+function EditCompanyInfo() {
+  const navigate = useNavigate();
+  const { companyid } = useParams();
+
+  const [form, setForm] = useState(MOCK_COMPANY);
 
   const amenitiesList = [
     "Wifi",
@@ -35,31 +37,18 @@ function SignupCompany() {
     "Lavadora",
   ];
 
-  const addAmenity = () => {
-    setForm({ ...form, amenities: [...form.amenities, ""] });
-  };
-
+  const addAmenity = () => setForm({ ...form, amenities: [...form.amenities, ""] });
   const updateAmenity = (index, value) => {
     const updated = [...form.amenities];
     updated[index] = value;
     setForm({ ...form, amenities: updated });
   };
-
-  const removeAmenity = (index) => {
-    setForm({
-      ...form,
-      amenities: form.amenities.filter((_, i) => i !== index),
-    });
-  };
+  const removeAmenity = (index) =>
+    setForm({ ...form, amenities: form.amenities.filter((_, i) => i !== index) });
 
   return (
     <div className="signupPage">
-      <h1>Registrar Empresa</h1>
-
-      <div className="signupLinks">
-        ¿Ya registraste tu empresa?{" "}
-        <span onClick={() => navigate("/login")}>Iniciar Sesión</span>
-      </div>
+      <h1>Editar Información</h1>
 
       <div className="formGroup">
         <label>Tipo de Empresa</label>
@@ -130,12 +119,7 @@ function SignupCompany() {
         <select
           value={form.province}
           onChange={(e) =>
-            setForm({
-              ...form,
-              province: e.target.value,
-              canton: "",
-              district: "",
-            })
+            setForm({ ...form, province: e.target.value, canton: "", district: "" })
           }
         >
           <option value="">Seleccione Provincia</option>
@@ -150,13 +134,7 @@ function SignupCompany() {
           <label>Cantón</label>
           <select
             value={form.canton}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                canton: e.target.value,
-                district: "",
-              })
-            }
+            onChange={(e) => setForm({ ...form, canton: e.target.value, district: "" })}
           >
             <option value="">Seleccione Cantón</option>
             {Object.keys(COSTA_RICA_LOCATIONS[form.province]).map((canton) => (
@@ -174,11 +152,9 @@ function SignupCompany() {
             onChange={(e) => setForm({ ...form, district: e.target.value })}
           >
             <option value="">Seleccione Distrito</option>
-            {COSTA_RICA_LOCATIONS[form.province][form.canton].map(
-              (district) => (
-                <option key={district}>{district}</option>
-              ),
-            )}
+            {COSTA_RICA_LOCATIONS[form.province][form.canton].map((district) => (
+              <option key={district}>{district}</option>
+            ))}
           </select>
         </div>
       )}
@@ -206,15 +182,12 @@ function SignupCompany() {
         <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <GoogleMap
             mapContainerStyle={{ width: "100%", height: "250px" }}
-            center={{ lat: 9.7489, lng: -83.7534 }}
+            center={form.location || { lat: 9.7489, lng: -83.7534 }}
             zoom={7}
             onClick={(e) =>
               setForm({
                 ...form,
-                location: {
-                  lat: e.latLng.lat(),
-                  lng: e.latLng.lng(),
-                },
+                location: { lat: e.latLng.lat(), lng: e.latLng.lng() },
               })
             }
           >
@@ -234,19 +207,14 @@ function SignupCompany() {
 
       <div className="formGroup">
         <label>Amenidades</label>
-
         {form.amenities.map((amenity, i) => (
           <div key={i} className="amenityRow">
-            <select
-              value={amenity}
-              onChange={(e) => updateAmenity(i, e.target.value)}
-            >
+            <select value={amenity} onChange={(e) => updateAmenity(i, e.target.value)}>
               <option value="">Seleccione Amenidad</option>
               {amenitiesList.map((a) => (
                 <option key={a}>{a}</option>
               ))}
             </select>
-
             <button type="button" onClick={() => removeAmenity(i)}>
               <FaTrash />
             </button>
@@ -258,30 +226,14 @@ function SignupCompany() {
         </button>
       </div>
 
-      <div className="formGroup">
-        <label>Contraseña</label>
-        <small>8 o más caracteres con letras, números y símbolos</small>
-
-        <div className="passwordField">
-          <input
-            type={showPassword ? "text" : "password"}
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
-
-          <button
-            type="button"
-            className="togglePassword"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? "Ocultar" : "Ver"}
-          </button>
-        </div>
-      </div>
-
-      <button className="buttonMain fullWidth" onClick={() => navigate("/")}>Registrar</button>
+      <button
+        className="buttonMain fullWidth"
+        onClick={() => navigate("/")}
+      >
+        Guardar Cambios
+      </button>
     </div>
   );
 }
 
-export default SignupCompany;
+export default EditCompanyInfo;

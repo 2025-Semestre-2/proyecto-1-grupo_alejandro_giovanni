@@ -13,6 +13,7 @@
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.22.0",
     "@react-google-maps/api": "^2.20.8",
+    "axios": "^1.13.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",

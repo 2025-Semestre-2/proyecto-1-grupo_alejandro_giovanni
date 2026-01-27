@@ -22,7 +22,7 @@
   gap: var(--text-sm);
 }
 
-.searchBar {
+.searchBarTop {
   display: flex;
   align-items: center;
   background: white;

@@ -1,0 +1,138 @@
+.adminCompaniesPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 3rem;
+}
+
+.adminCompaniesPage .searchBar,
+.adminCompaniesPage .tableColumn {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.roomsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  color: limegreen;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.roomsBtn:hover {
+  text-decoration: underline;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.roomsModal {
+  background: white;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 500px;
+  padding: 1.25rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modalHeader h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.modalHeader button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.roomsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.roomsList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.roomsList li:last-child {
+  border-bottom: none;
+}
+
+.roomsList strong {
+  display: block;
+}
+
+.roomsList span {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.emptyRooms {
+  text-align: center;
+  color: #888;
+  padding: 1rem 0;
+}
+
+.addRoomFooterBtn {
+  margin-top: 1rem;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0;
+  background: limegreen;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.addRoomFooterBtn:hover {
+  filter: brightness(0.9);
+}
+
+.roomAction {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deleteRoomBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #c00;
+  transition: transform 0.15s ease;
+}
+
+.deleteRoomBtn:hover {
+  transform: scale(1.1);
+}

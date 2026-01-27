@@ -19,8 +19,8 @@ function CompanyProfile() {
     price: "₡65,000 / noche",
   }));
 
-  const latitude = 9.93333; // Y
-  const longitude = -84.08333; // X
+  const latitude = 9.93333;
+  const longitude = -84.08333;
 
   const { companyid } = useParams();
   const navigate = useNavigate();
@@ -207,8 +207,8 @@ function CompanyProfile() {
           </div>
 
           <div className="profileButtons">
-            <button className="buttonMain cancel">Editar Información</button>
-            <button className="buttonMain cancel">Cambiar Contraseña</button>
+            <button className="buttonMain cancel" onClick={() => navigate(`/editCompanyInfo/${companyid}`)}>Editar Información</button>
+            <button className="buttonMain cancel" onClick={() => navigate(`/passwordChange/${"company"}/${companyid}`)}>Cambiar Contraseña</button>
             <button
               className="buttonMain delete"
               onClick={() => {

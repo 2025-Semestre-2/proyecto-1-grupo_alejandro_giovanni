@@ -1,6 +1,6 @@
 import PageTop from "./components/PageTop";
 import PageTopContent from "./components/PageTopContent";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import COSTA_RICA_LOCATIONS from "./data/crLocations";
 import "./CompanyReports.css";

@@ -1,6 +1,5 @@
-import { useParams } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PageTop from "./components/PageTop";
 import PageTopContent from "./components/PageTopContent";
 import "./Preview.css";
@@ -9,7 +8,6 @@ function Preview() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Dummy data (later comes from backend)
   const images = [
   "https://i.imgur.com/abc123.jpg",
   "https://i.imgur.com/def456.jpg",
@@ -35,7 +33,6 @@ function Preview() {
         <p className="roomLocation">San José, Escazú</p>
       </div>
 
-      {/* Imagenes */}
       <div className="previewImageWrapper">
         <img
           src={images[currentImage]}

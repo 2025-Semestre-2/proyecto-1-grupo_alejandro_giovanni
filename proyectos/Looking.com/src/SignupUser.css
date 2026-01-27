@@ -86,3 +86,61 @@
   gap: 0.4rem;
   cursor: pointer;
 }
+
+.amenityRow button {
+  background-color: white;
+  border: none;
+  color: #ff4d4f;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.amenityRow button:hover {
+  background: #d9363e;
+  color: white;
+}
+
+.amenityRow button svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.imagePreviewGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.imagePreview {
+  position: relative;
+  width: 120px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagePreview button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(255,0,0,0.8);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+}

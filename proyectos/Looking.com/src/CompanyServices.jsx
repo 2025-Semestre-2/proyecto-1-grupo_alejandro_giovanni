@@ -52,7 +52,7 @@ export default function CompanyServices() {
             <div className="roomActions">
               <FaEdit
                 title="Editar"
-                onClick={() => navigate(`/company/rooms/edit/${room.id}`)}
+                onClick={() => navigate(`/editRoomInfo/${room.id}`)}
               />
               <FaTrash title="Eliminar" onClick={() => handleDelete(room.id)} />
             </div>

@@ -110,9 +110,15 @@ function PageTop() {
           </button>
           <button
             className="buttonSub"
-            onClick={() => navigate("/adminCompanies")}
+            onClick={() => navigate("/adminCompaniesHosting")}
           >
-            Empresas
+            Empresas Hospedaje
+          </button>
+          <button
+            className="buttonSub"
+            onClick={() => navigate("/adminCompaniesEntertainment")}
+          >
+            Empresas Actividades
           </button>
         </div>
       )}
@@ -144,7 +150,7 @@ function PageTop() {
         <div className="searchSelector">
           <button
             className="buttonSub"
-            onClick={() => navigate("/companyServices")}
+            onClick={() => navigate("/companyActivities")}
           >
             Mis experiencias
           </button>
@@ -188,7 +194,7 @@ function PageTop() {
       )}
 
       {!isAdmin && !isCompany && (
-        <div className="searchBar">
+        <div className="searchBarTop">
           <div className="searchSegment">
             <label>
               Provincia <span style={{ color: "red" }}>*</span>
@@ -289,7 +295,7 @@ function PageTop() {
           </button>
         </div>
       )}
-      <div className="pageTopDivider" />
+      {!isHome && <div className="pageTopDivider" />}
     </>
   );
 }

@@ -1,0 +1,104 @@
+.historyWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.historyScroller {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 8px 0;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  width: 260px
+}
+.historyScroller::-webkit-scrollbar {
+  display: none;
+}
+
+.historyCard {
+  min-width: 260px;
+  max-width: 260px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 12px;
+  scroll-snap-align: start;
+
+}
+
+.mapPreview {
+  margin-top: 6px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.socialBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.socialIcons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.socialIcons a {
+  font-size: 22px;
+  color: limegreen;
+  transition: color 0.2s ease;
+}
+
+.socialIcons a:hover {
+  color: #000;
+}
+
+.amenities {
+  margin: 10px 0;
+}
+
+.amenitiesWrap {
+  width: 100%;
+  display: block;
+}
+
+.amenitiesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.amenitiesList li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+
+  background: #fafafa;
+  font-size: 14px;
+  white-space: nowrap;
+  width: auto;
+  max-width: 100%;
+}
+
+.externalLink {
+  color: limegreen;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.externalLink:hover {
+  text-decoration: underline;
+}

@@ -1,6 +1,4 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
-import COSTA_RICA_LOCATIONS from "../data/crLocations";
 import "./PageTop.css";
 
 import { FaUserCircle } from "react-icons/fa";
@@ -12,17 +10,6 @@ function PageTop() {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
-
-  const [searchType, setSearchType] = useState("stays");
-
-  const [province, setProvince] = useState("");
-  const [canton, setCanton] = useState("");
-  const [district, setDistrict] = useState("");
-
-  const provinces = Object.keys(COSTA_RICA_LOCATIONS);
-  const cantons = province ? Object.keys(COSTA_RICA_LOCATIONS[province]) : [];
-  const districts =
-    province && canton ? COSTA_RICA_LOCATIONS[province][canton] : [];
 
   const {
     session,
@@ -103,6 +90,23 @@ function PageTop() {
         </div>
       </div>
 
+      {(isGuest || isUser) && (
+        <div className="searchSelector">
+          <button
+            className="buttonSub"
+            onClick={() => navigate(`/search/${"rooms"}`)}
+          >
+            Reservaciones
+          </button>
+          <button
+            className="buttonSub"
+            onClick={() => navigate(`/search/${"activities"}`)}
+          >
+            Actividades
+          </button>
+        </div>
+      )}
+
       {isAdmin && (
         <div className="searchSelector">
           <button className="buttonSub" onClick={() => navigate("/adminUsers")}>
@@ -163,19 +167,11 @@ function PageTop() {
         </div>
       )}
 
+
       {isHome && (isGuest || isUser) && (
         <>
-          {searchType === "stays" ? (
-            <>
-              <h1>Encuentra tu siguiente estadía</h1>
-              <h2>Hoteles, departamentos, y mucho más</h2>
-            </>
-          ) : (
-            <>
-              <h1>Encuentra tu siguiente aventura</h1>
-              <h2>Explora todos los rincones de nuestra cultura</h2>
-            </>
-          )}
+          <h1>Encuentra tu siguiente estadía o aventura</h1>
+          <h2>Hoteles, actividades, y mucho más</h2>
         </>
       )}
 
@@ -193,108 +189,6 @@ function PageTop() {
         </>
       )}
 
-      {!isAdmin && !isCompany && (
-        <div className="searchBarTop">
-          <div className="searchSegment">
-            <label>
-              Provincia <span style={{ color: "red" }}>*</span>
-            </label>
-            <select
-              value={province}
-              onChange={(e) => {
-                setProvince(e.target.value);
-                setCanton("");
-                setDistrict("");
-              }}
-              required
-            >
-              <option value="">Seleccionar</option>
-              {provinces.map((prov) => (
-                <option key={prov} value={prov}>
-                  {prov}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="searchSegment">
-            <label>Cantón</label>
-            <select
-              value={canton}
-              onChange={(e) => {
-                setCanton(e.target.value);
-                setDistrict("");
-              }}
-              disabled={!province}
-            >
-              <option value="">Todos</option>
-              {cantons.map((cant) => (
-                <option key={cant} value={cant}>
-                  {cant}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="searchSegment">
-            <label>Distrito</label>
-            <select
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              disabled={!canton}
-            >
-              <option value="">Todos</option>
-              {districts.map((dist) => (
-                <option key={dist} value={dist}>
-                  {dist}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {searchType === "stays" && (
-            <>
-              <div className="searchDivider" />
-
-              <div className="searchSegment">
-                <label>
-                  Fecha Llegada <span style={{ color: "red" }}>*</span>
-                </label>
-                <input type="date" />
-              </div>
-
-              <div className="searchSegment">
-                <label>
-                  Fecha Salida <span style={{ color: "red" }}>*</span>
-                </label>
-                <input type="date" />
-              </div>
-
-              <div className="searchDivider" />
-
-              <div className="searchSegment">
-                <label>
-                  Personas <span style={{ color: "red" }}>*</span>
-                </label>
-                <input type="number" min="1" defaultValue="2" />
-              </div>
-            </>
-          )}
-
-          <button
-            style={{ marginLeft: "auto" }}
-            className="buttonMain"
-            disabled={!province}
-            onClick={() =>
-              navigate("/search", {
-                state: { province, canton, district },
-              })
-            }
-          >
-            Buscar
-          </button>
-        </div>
-      )}
       {!isHome && <div className="pageTopDivider" />}
     </>
   );

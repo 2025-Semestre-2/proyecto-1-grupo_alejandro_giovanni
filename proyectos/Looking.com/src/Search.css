@@ -105,3 +105,13 @@
   font-weight: 700;
   margin-top: 0.5rem;
 }
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  color: #777;
+  font-size: 1.1rem;
+  text-align: center;
+}

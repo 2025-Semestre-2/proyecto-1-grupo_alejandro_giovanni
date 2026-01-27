@@ -10,7 +10,7 @@ const MOCK_ACTIVITY = {
   contactPerson: "Juan Pérez",
   price: 45000,
   activityTypes: ["Kayaking"],
-  image: "", // single image
+  image: "",
 };
 
 const ACTIVITY_TYPES = [
@@ -46,7 +46,7 @@ export default function EditActivityInfo() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "Looking"); // Replace with your preset
+    formData.append("upload_preset", "Looking");
 
     try {
       const res = await axios.post(

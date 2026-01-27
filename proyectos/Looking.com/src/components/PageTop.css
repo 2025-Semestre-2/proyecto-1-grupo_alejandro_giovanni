@@ -46,6 +46,13 @@
   margin-bottom: 0.25rem;
 }
 
+.searchSegment select {
+  width: 100px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 .searchSegment select,
 .searchSegment input {
   border: none;
@@ -64,4 +71,50 @@ select {
   appearance: none;
   background: transparent;
   border: none;
+}
+
+.userHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.roleTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #777;
+}
+
+.profileButton {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: limegreen;
+  transition: border-color 0.25s;
+}
+
+.profileButton span {
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileButton:hover{
+  border-color: limegreen;
+}
+
+.pageTopDivider {
+  width: 100%;
+  height: 1px;
+  background: #e0e0e0;
+  margin-top: 1.5rem;
 }

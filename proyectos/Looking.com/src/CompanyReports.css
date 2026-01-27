@@ -1,0 +1,145 @@
+/* ====== PAGE LAYOUT ====== */
+
+.reportsLayout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+/* ====== LEFT COLUMN (FILTERS) ====== */
+
+.filtersColumn {
+  background: white;
+  padding: 1.25rem 0;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Reuse same filter look as bookings */
+
+.searchSegment {
+  display: flex;
+  flex-direction: column;
+  padding: 0 1.25rem;
+}
+
+.searchSegment label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.searchSegment input,
+.searchSegment select {
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  background: transparent;
+  padding: 4px 0;
+  font-size: 2;
+}
+
+/* Disable styling */
+.searchSegment select:disabled {
+  opacity: 0.5;
+}
+
+/* ====== RIGHT COLUMN (TABLE) ====== */
+
+.tableColumn {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ====== TABLE ====== */
+
+.reportsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.reportsTable thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.reportsTable tbody td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.reportsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.reportsTable tbody tr:hover {
+  background: #f7f7f7;
+}
+
+/* ====== LINKS ====== */
+
+.reportsTable a {
+  color: #333;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reportsTable a:hover {
+  color: limegreen;
+}
+
+/* ====== DEMAND COLUMN ====== */
+
+.reportsTable td:last-child {
+  font-weight: 600;
+}
+
+.reportsTable td:last-child:contains("Alta") {
+  color: limegreen;
+}
+
+/* Fallback explicit classes if you add them later */
+.demandAlta {
+  color: limegreen;
+  font-weight: 600;
+}
+
+.demandMedia {
+  color: #888;
+  font-weight: 500;
+}
+
+.demandBaja {
+  color: #aaa;
+}
+
+/* ====== EMPTY STATE ====== */
+
+.reportsTable td[colspan] {
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Ubicación column (Provincia, Cantón, Distrito) */
+.reportsTable td:nth-child(4),
+.reportsTable th:nth-child(4) {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

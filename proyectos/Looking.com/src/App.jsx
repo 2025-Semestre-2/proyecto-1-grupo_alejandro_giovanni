@@ -7,7 +7,12 @@ import Profile from "./Profile"
 import Login from "./Login"
 import SignupUser from "./SignupUser"
 import SignupCompany from "./SignupCompany"
-import HomeCompany from "./HomeCompany"
+import CompanyProfile from "./CompanyProfile"
+import CompanyServices from "./CompanyServices"
+import CompanyBookings from "./CompanyBookings"
+import CompanyReports from "./CompanyReports"
+import AdminUsers from "./AdminUsers"
+import AdminCompanies from "./AdminCompanies"
 
 function App() {
   return (
@@ -20,7 +25,13 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signupUser" element={<SignupUser />} />
       <Route path="/signupCompany" element={<SignupCompany />} />
-      <Route path="/homeCompany" element={<HomeCompany />} />
+      <Route path="/companyProfile/:companyid" element={<CompanyProfile />} />
+      <Route path="/companyServices" element={<CompanyServices />} />
+      <Route path="/companyBookings" element={<CompanyBookings />} />
+      <Route path="/companyReports" element={<CompanyReports />} />
+      <Route path="/adminUsers" element={<AdminUsers />} />
+      <Route path="/adminCompanies" element={<AdminCompanies />} />
+
     </Routes>
   );
 }

@@ -174,8 +174,6 @@ const MOCK_STATS = {
   topRooms: ["Royal Suite", "Habitación Estándar"],
 };
 
-/* ---------- COMPONENT ---------- */
-
 const today = new Date();
 
 const oneWeekAgo = new Date(today);
@@ -193,8 +191,6 @@ export default function CompanyBookings() {
     roomTypes: [],
     rooms: [],
   });
-
-  /* ---------- CALENDAR ---------- */
 
   const getMonthDays = (year, month) => {
     const firstDay = new Date(year, month, 1);
@@ -222,8 +218,6 @@ export default function CompanyBookings() {
     return getMonthDays(currentMonth.getFullYear(), currentMonth.getMonth());
   }, [currentMonth]);
 
-  /* ---------- FILTER LOGIC ---------- */
-
   const hasRoomFilter =
     filters.roomTypes.length > 0 || filters.rooms.length > 0;
 
@@ -242,8 +236,6 @@ export default function CompanyBookings() {
       return overlapsDateRange && roomTypeMatch && roomMatch;
     });
   }, [filters, hasRoomFilter]);
-
-  /* ---------- HANDLERS ---------- */
 
   const toggleRoomType = (type, rooms) => {
     setFilters((prev) => {
@@ -296,15 +288,12 @@ export default function CompanyBookings() {
     }));
   }, []);
 
-  /* ---------- JSX ---------- */
-
   return (
     <>
       <PageTopContent>
         <PageTop />
       </PageTopContent>
       <div className="companyBookings">
-        {/* Left */}
         <div className="bookingSidebar">
           <h3>Filtros</h3>
 
@@ -328,7 +317,6 @@ export default function CompanyBookings() {
             />
           </div>
 
-          {/* Room filters */}
           <div className="filterGroup">
             <h4>Cuartos</h4>
 
@@ -369,7 +357,6 @@ export default function CompanyBookings() {
 
           <hr />
 
-          {/* Stats */}
           <div className="stats">
             <h4>Resumen</h4>
 
@@ -400,7 +387,6 @@ export default function CompanyBookings() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN */}
         <div className="bookingCalendar">
           <h3>Calendario</h3>
 
@@ -501,7 +487,7 @@ export default function CompanyBookings() {
           </div>
         </div>
       </div>
-      {/* Popup modal */}
+
       {selectedReservation && (
         <div className="modalOverlay">
           <div className="reservationModal">

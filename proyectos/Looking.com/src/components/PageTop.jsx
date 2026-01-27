@@ -47,7 +47,6 @@ function PageTop() {
         </div>
 
         <div className="headerActions">
-          {/* guest */}
           {isGuest && (
             <>
               <button
@@ -68,7 +67,6 @@ function PageTop() {
             </>
           )}
 
-          {/* user */}
           {(isUser || isAdmin) && (
             <>
               <button className="buttonSub2" onClick={() => navigate("/")}>
@@ -85,7 +83,6 @@ function PageTop() {
             </>
           )}
 
-          {/* company */}
           {isCompany && (
             <>
               <button className="buttonSub2" onClick={() => navigate("/")}>

@@ -101,7 +101,6 @@ function CompanyReports() {
         <PageTop />
       </PageTopContent>
       <div className="reportsLayout">
-        {/* Filters */}
         <div className="filtersColumn">
           <div className="searchSegment">
             <h3>Fechas</h3>
@@ -179,7 +178,6 @@ function CompanyReports() {
           </div>
         </div>
 
-        {/* Table */}
         <div className="tableColumn">
           <table className="reportsTable">
             <thead>

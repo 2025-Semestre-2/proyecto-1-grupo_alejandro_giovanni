@@ -5,7 +5,6 @@
   padding: 1.5rem;
 }
 
-/* LEFT */
 .bookingSidebar {
   background: white;
   padding: 1.25rem;
@@ -41,7 +40,6 @@
   font-size: 0.9rem;
 }
 
-/* RIGHT */
 .bookingCalendar {
   background: white;
   padding: 1.25rem;
@@ -67,7 +65,6 @@
   color: #777;
 }
 
-/* Calendar */
 .calendarHeader {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -109,7 +106,6 @@
   cursor: pointer;
 }
 
-/* Modal */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -214,7 +210,6 @@
   font-weight: 500;
 }
 
-/* Switch */
 .switch {
   position: relative;
   display: inline-block;

@@ -3,18 +3,25 @@ import PageTopContent from "./components/PageTopContent";
 import { useState, useMemo, useEffect } from "react";
 import "./CompanyBookings.css";
 
-/* ---------- MOCK DATA ---------- */
-
 const ROOM_TYPES = [
   {
     typeId: "royal",
     type: "Royal Suite",
-    rooms: ["A1", "A2", "A3"],
+    rooms: [
+      { id: "A1", active: true },
+      { id: "A2", active: false },
+      { id: "A3", active: true },
+    ],
   },
   {
     typeId: "standard",
     type: "Habitación Estándar",
-    rooms: ["B1", "B2", "B3", "B4"],
+    rooms: [
+      { id: "B1", active: true },
+      { id: "B2", active: true },
+      { id: "B3", active: false },
+      { id: "B4", active: true },
+    ],
   },
 ];
 
@@ -279,7 +286,9 @@ export default function CompanyBookings() {
 
   useEffect(() => {
     const allRoomTypes = ROOM_TYPES.map((rt) => rt.type);
-    const allRooms = ROOM_TYPES.flatMap((rt) => rt.rooms);
+    const allRooms = ROOM_TYPES.flatMap((rt) =>
+      rt.rooms.map((room) => room.id),
+    );
 
     setFilters((prev) => ({
       ...prev,
@@ -330,7 +339,12 @@ export default function CompanyBookings() {
                       <input
                         type="checkbox"
                         checked={roomTypeChecked}
-                        onChange={() => toggleRoomType(rt.type, rt.rooms)}
+                        onChange={() =>
+                          toggleRoomType(
+                            rt.type,
+                            rt.rooms.map((r) => r.id),
+                          )
+                        }
                       />
                       {rt.type}
                     </label>
@@ -338,13 +352,14 @@ export default function CompanyBookings() {
                     {roomTypeChecked && (
                       <div className="roomList">
                         {rt.rooms.map((room) => (
-                          <label key={room} className="roomLabel">
+                          <label key={room.id} className="roomLabel">
                             <input
                               type="checkbox"
-                              checked={filters.rooms.includes(room)}
-                              onChange={() => toggleRoom(room)}
+                              checked={filters.rooms.includes(room.id)}
+                              onChange={() => toggleRoom(room.id)}
                             />
-                            {room}
+                            {room.id}
+                            {!room.active && <span> (Inactivo)</span>}
                           </label>
                         ))}
                       </div>
@@ -476,7 +491,9 @@ export default function CompanyBookings() {
       `}
                         onClick={() => setSelectedReservation(res)}
                       >
-                        {isLastNight && <span className="checkoutArrow">→</span>}
+                        {isLastNight && (
+                          <span className="checkoutArrow">→</span>
+                        )}
                         {isCheckIn && `#${res.id}`}
                       </div>
                     );

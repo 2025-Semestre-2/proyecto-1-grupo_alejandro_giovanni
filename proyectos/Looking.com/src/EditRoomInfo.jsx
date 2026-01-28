@@ -11,7 +11,11 @@ const MOCK_ROOM = {
     { type: "Alojamiento", amount: 52000 },
     { type: "Limpieza", amount: 8000 },
   ],
-  rooms: ["101", "102"],
+  rooms: [
+    { name: "101", active: true },
+    { name: "102", active: false },
+  ],
+
   beds: [
     { type: "Cama King", quantity: 1 },
     { type: "Cama Individual", quantity: 2 },
@@ -55,10 +59,19 @@ export default function EditRoomInfo() {
     setForm({ ...form, charges: form.charges.filter((_, i) => i !== index) });
   const totalPrice = form.charges.reduce((sum, c) => sum + c.amount, 0);
 
-  const addRoom = () => setForm({ ...form, rooms: [...form.rooms, ""] });
-  const updateRoom = (index, value) => {
+  const addRoom = () =>
+    setForm({
+      ...form,
+      rooms: [...form.rooms, { name: "", active: true }],
+    });
+  const updateRoomName = (index, value) => {
     const updated = [...form.rooms];
-    updated[index] = value;
+    updated[index].name = value;
+    setForm({ ...form, rooms: updated });
+  };
+  const toggleRoomActive = (index) => {
+    const updated = [...form.rooms];
+    updated[index].active = !updated[index].active;
     setForm({ ...form, rooms: updated });
   };
   const removeRoom = (index) =>
@@ -169,19 +182,29 @@ export default function EditRoomInfo() {
 
       <div className="formGroup">
         <label>Cuartos</label>
-        {form.rooms.map((r, i) => (
+
+        {form.rooms.map((room, i) => (
           <div key={i} className="amenityRow">
             <input
               type="text"
-              value={r}
-              onChange={(e) => updateRoom(i, e.target.value)}
+              value={room.name}
+              onChange={(e) => updateRoomName(i, e.target.value)}
               placeholder="Identificador"
             />
+
+            <div
+              className={`roomToggle ${room.active ? "active" : ""}`}
+              onClick={() => toggleRoomActive(i)}
+            >
+              <div className="roomToggleHandle" />
+            </div>
+
             <button type="button" onClick={() => removeRoom(i)}>
               <FaTrash />
             </button>
           </div>
         ))}
+
         <button type="button" className="addAmenity" onClick={addRoom}>
           <FaPlus /> Agregar Cuarto
         </button>

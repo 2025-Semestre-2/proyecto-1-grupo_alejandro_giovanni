@@ -52,9 +52,7 @@ export default function CompanyActivities() {
             <div className="roomActions">
               <FaEdit
                 title="Editar"
-                onClick={() =>
-                  navigate(`/editActivityInfo/${activity.id}`)
-                }
+                onClick={() => navigate(`/editActivityInfo/${activity.id}`)}
               />
               <FaTrash
                 title="Eliminar"
@@ -64,7 +62,7 @@ export default function CompanyActivities() {
 
             <div
               className="roomCard"
-              onClick={() => navigate(`/preview/${activity.id}`)}
+              onClick={() => navigate(`/preview/activities/${activity.id}`)}
             >
               <div className="roomImage" />
               <div className="roomInfo">

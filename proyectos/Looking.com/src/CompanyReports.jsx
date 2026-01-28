@@ -68,7 +68,6 @@ function CompanyReports() {
 
   const provinces = Object.keys(COSTA_RICA_LOCATIONS);
 
-
   const cantons = useMemo(() => {
     if (!province) return [];
     return Object.keys(COSTA_RICA_LOCATIONS[province]);
@@ -120,11 +119,9 @@ function CompanyReports() {
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
-
           <div className="searchSegment">
-            <h3>
-              Provincia <span style={{ color: "red" }}>*</span>
-            </h3>
+            <h3>Ubicación</h3>
+            <label>Provincia</label>
             <select
               value={province}
               onChange={(e) => {

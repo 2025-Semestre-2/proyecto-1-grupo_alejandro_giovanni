@@ -5,6 +5,8 @@ import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import COSTA_RICA_LOCATIONS from "./data/crLocations";
 import "./SignupUser.css";
 
+const SOCIAL_MEDIA_PLATFORMS = ["Facebook", "Instagram", "WhatsApp", "Twitter"];
+
 const MOCK_COMPANY = {
   companyType: "Hotel",
   legalId: "3-101-123456",
@@ -20,6 +22,11 @@ const MOCK_COMPANY = {
   website: "https://www.hotelmock.com",
   amenities: ["Wifi", "Piscina"],
   location: { lat: 9.9333, lng: -84.0833 },
+
+  socialMedia: [
+    { platform: "Facebook", url: "https://facebook.com/hotelmock" },
+    { platform: "Instagram", url: "https://instagram.com/hotelmock" },
+  ],
 };
 
 function EditCompanyInfo() {
@@ -37,14 +44,34 @@ function EditCompanyInfo() {
     "Lavadora",
   ];
 
-  const addAmenity = () => setForm({ ...form, amenities: [...form.amenities, ""] });
+  const addAmenity = () =>
+    setForm({ ...form, amenities: [...form.amenities, ""] });
   const updateAmenity = (index, value) => {
     const updated = [...form.amenities];
     updated[index] = value;
     setForm({ ...form, amenities: updated });
   };
   const removeAmenity = (index) =>
-    setForm({ ...form, amenities: form.amenities.filter((_, i) => i !== index) });
+    setForm({
+      ...form,
+      amenities: form.amenities.filter((_, i) => i !== index),
+    });
+
+  const addSocialMedia = () =>
+    setForm({
+      ...form,
+      socialMedia: [...form.socialMedia, { platform: "", url: "" }],
+    });
+  const updateSocialMedia = (index, key, value) => {
+    const updated = [...form.socialMedia];
+    updated[index][key] = value;
+    setForm({ ...form, socialMedia: updated });
+  };
+  const removeSocialMedia = (index) =>
+    setForm({
+      ...form,
+      socialMedia: form.socialMedia.filter((_, i) => i !== index),
+    });
 
   return (
     <div className="signupPage">
@@ -119,7 +146,12 @@ function EditCompanyInfo() {
         <select
           value={form.province}
           onChange={(e) =>
-            setForm({ ...form, province: e.target.value, canton: "", district: "" })
+            setForm({
+              ...form,
+              province: e.target.value,
+              canton: "",
+              district: "",
+            })
           }
         >
           <option value="">Seleccione Provincia</option>
@@ -134,7 +166,9 @@ function EditCompanyInfo() {
           <label>Cantón</label>
           <select
             value={form.canton}
-            onChange={(e) => setForm({ ...form, canton: e.target.value, district: "" })}
+            onChange={(e) =>
+              setForm({ ...form, canton: e.target.value, district: "" })
+            }
           >
             <option value="">Seleccione Cantón</option>
             {Object.keys(COSTA_RICA_LOCATIONS[form.province]).map((canton) => (
@@ -152,9 +186,11 @@ function EditCompanyInfo() {
             onChange={(e) => setForm({ ...form, district: e.target.value })}
           >
             <option value="">Seleccione Distrito</option>
-            {COSTA_RICA_LOCATIONS[form.province][form.canton].map((district) => (
-              <option key={district}>{district}</option>
-            ))}
+            {COSTA_RICA_LOCATIONS[form.province][form.canton].map(
+              (district) => (
+                <option key={district}>{district}</option>
+              ),
+            )}
           </select>
         </div>
       )}
@@ -209,7 +245,10 @@ function EditCompanyInfo() {
         <label>Amenidades</label>
         {form.amenities.map((amenity, i) => (
           <div key={i} className="amenityRow">
-            <select value={amenity} onChange={(e) => updateAmenity(i, e.target.value)}>
+            <select
+              value={amenity}
+              onChange={(e) => updateAmenity(i, e.target.value)}
+            >
               <option value="">Seleccione Amenidad</option>
               {amenitiesList.map((a) => (
                 <option key={a}>{a}</option>
@@ -226,10 +265,40 @@ function EditCompanyInfo() {
         </button>
       </div>
 
-      <button
-        className="buttonMain fullWidth"
-        onClick={() => navigate("/")}
-      >
+      <div className="formGroup">
+        <label>Redes Sociales</label>
+
+        {form.socialMedia.map((s, i) => (
+          <div key={i} className="amenityRow">
+            <select
+              value={s.platform}
+              onChange={(e) => updateSocialMedia(i, "platform", e.target.value)}
+            >
+              <option value="">Seleccione Plataforma</option>
+              {SOCIAL_MEDIA_PLATFORMS.map((p) => (
+                <option key={p}>{p}</option>
+              ))}
+            </select>
+
+            <input
+              type="url"
+              placeholder="URL del perfil"
+              value={s.url}
+              onChange={(e) => updateSocialMedia(i, "url", e.target.value)}
+            />
+
+            <button type="button" onClick={() => removeSocialMedia(i)}>
+              <FaTrash />
+            </button>
+          </div>
+        ))}
+
+        <button type="button" className="addAmenity" onClick={addSocialMedia}>
+          <FaPlus /> Agregar Red Social
+        </button>
+      </div>
+
+      <button className="buttonMain fullWidth" onClick={() => navigate("/")}>
         Guardar Cambios
       </button>
     </div>

@@ -7,9 +7,9 @@ export function AuthProvider({ children }) {
   const session = {
     isLoggedIn: true,
     role: "user",  // "guest", "user", "admin", "company_hosting", "company_entertainment"
-    userId: "123",
+    userId: "12",
     userName: "Juan Pérez",
-    companyId: "456",
+    companyId: "34",
     companyName: "Hotel Las Montañas del Valle Central",
   };
 

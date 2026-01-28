@@ -123,3 +123,12 @@
 .fullWidth {
   width: 100%;
 }
+
+.companyName.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.companyName.clickable:hover {
+  opacity: 0.85;
+}

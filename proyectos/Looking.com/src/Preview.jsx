@@ -1,25 +1,64 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+
 import PageTop from "./components/PageTop";
 import PageTopContent from "./components/PageTopContent";
 import "./Preview.css";
 
+const AMENITIES = [
+  "Wi-Fi",
+  "Aire acondicionado",
+  "Piscina",
+  "Parqueo gratuito",
+  "TV",
+  "Cocina",
+];
+
+const generateFakePreview = ({ role, id }) => {
+  const rooms = Math.floor(Math.random() * 3) + 1;
+
+  return {
+    id,
+    role, //"rooms", "activities"
+    title: "Habitación Deluxe Familiar",
+    companyName: "Hotel Soltura",
+    companyId: 30201,
+    location: "San José, Escazú",
+    description:
+      "Habitación amplia y cómoda, ideal para parejas o familias pequeñas, ubicada cerca del centro.",
+    bedrooms: rooms,
+    beds: ["1 cama - Queen", "2 camas - Individual"],
+    amenities: AMENITIES.filter(() => Math.random() > 0.4),
+    price: Math.floor(Math.random() * 90000) + 40000,
+    images: [
+      "https://www.jaypeehotels.com/blog/wp-content/uploads/2024/09/Blog-6-scaled.jpg",
+      "https://cdn.sanity.io/images/y527plhk/production/736b3a72ba9b2a18e243ef695c0870abd83bca6c-4000x3000.jpg",
+      "https://www.potawatomi.com/application/files/3517/4560/6138/Signature-2-Queen_body.webp",
+    ],
+  };
+};
+
 function Preview() {
-  const { id } = useParams();
+  const { role, id } = useParams();
   const navigate = useNavigate();
 
-  const images = [
-  "https://i.imgur.com/abc123.jpg",
-  "https://i.imgur.com/def456.jpg",
-  "https://i.imgur.com/ghi789.jpg",
-];
+  const { isGuest, isUser } = useAuth();
+
+  const isActivity = role === "activities";
+  const canReserve = isUser || isGuest;
+
+  const preview = useMemo(() => generateFakePreview({ role, id }), [role, id]);
 
   const [currentImage, setCurrentImage] = useState(0);
 
-  const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
+  const nextImage = () =>
+    setCurrentImage((prev) => (prev + 1) % preview.images.length);
 
   const prevImage = () =>
-    setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentImage((prev) =>
+      prev === 0 ? preview.images.length - 1 : prev - 1,
+    );
 
   return (
     <>
@@ -28,19 +67,32 @@ function Preview() {
       </PageTopContent>
 
       <div className="previewHeader">
-        <h1 className="roomTitle">Habitación Deluxe Familiar</h1>
-        <h3 className="companyName">Hotel Soltura</h3>
-        <p className="roomLocation">San José, Escazú</p>
+        <h1 className="roomTitle">
+          {isActivity ? "Experiencia Exclusiva" : preview.title}
+        </h1>
+
+        <h3
+          className="companyName clickable"
+          onClick={() => navigate(`/companyProfile/${preview.companyId}`)}
+          title="Ver perfil de la empresa"
+        >
+          {preview.companyName}
+        </h3>
+
+        <p className="roomLocation">
+          {isActivity ? "Actividad disponible en: " : ""}
+          {preview.location}
+        </p>
       </div>
 
       <div className="previewImageWrapper">
         <img
-          src={images[currentImage]}
-          alt="Habitación"
+          src={preview.images[currentImage]}
+          alt={preview.title}
           className="previewImage"
         />
 
-        {images.length > 1 && (
+        {preview.images.length > 1 && (
           <>
             <button className="imageNav left" onClick={prevImage}>
               ‹
@@ -53,54 +105,66 @@ function Preview() {
       </div>
 
       <div className="previewContent">
-        {/* Columna Izquierda */}
+        {/* Left column */}
         <div className="previewLeft">
           <section>
-            <h3>Acerca de la Habitación</h3>
-            <p>
-              Habitación amplia y cómoda, ideal para parejas o familias
-              pequeñas, ubicada cerca del centro.
-            </p>
+            <h3>
+              {isActivity
+                ? "Acerca de la Actividad"
+                : "Acerca de la Habitación"}
+            </h3>
+
+            <p>{preview.description}</p>
           </section>
 
-          <section>
-            <h3>Cuartos</h3>
-            <p>
-              <strong>Dormitorios:</strong> 2
-            </p>
-            <ul className="bedList">
-              <li>1 cama - Queen</li>
-              <li>2 camas - Individual</li>
-            </ul>
-          </section>
+          {!isActivity && (
+            <section>
+              <h3>Cuartos</h3>
+              <p>
+                <strong>Dormitorios:</strong> {preview.bedrooms}
+              </p>
+              <ul className="bedList">
+                {preview.beds.map((bed, i) => (
+                  <li key={i}>{bed}</li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section>
             <h3>Amenidades</h3>
             <ul className="amenitiesList">
-              <li>Wi-Fi</li>
-              <li>Aire acondicionado</li>
-              <li>Piscina</li>
-              <li>Parqueo gratuito</li>
+              {preview.amenities.map((amenity, i) => (
+                <li key={i}>{amenity}</li>
+              ))}
             </ul>
           </section>
         </div>
 
-        {/* Columna Derecha */}
-        <aside className="previewRight">
-          <h3>¡Realiza tu reserva!</h3>
+        {/* Right column */}
+        {!isActivity && canReserve && (
+          <aside className="previewRight">
+            <h3>¡Realiza tu reserva!</h3>
 
-          <p className="dateRange">12 Mar – 15 Mar</p>
+            <p className="price">
+              ₡{preview.price.toLocaleString()}
+              <span>/Noche</span>
+            </p>
 
-          <p className="availability">
-            <strong>2</strong> cuartos restantes
-          </p>
-
-          <p className="price">
-            ₡65,000<span>/Noche</span>
-          </p>
-
-          <button className="buttonMain fullWidth" onClick={() => navigate(`/book/${id}`)}>Reserva Ya</button>
-        </aside>
+            <button
+              className="buttonMain fullWidth"
+              onClick={() => {
+                if (isGuest) {
+                  navigate("/signupUser");
+                } else {
+                  navigate(`/book/${id}`);
+                }
+              }}
+            >
+              {isGuest ? "Crear cuenta para reservar" : "Reserva Ya"}
+            </button>
+          </aside>
+        )}
       </div>
     </>
   );

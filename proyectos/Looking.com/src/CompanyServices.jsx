@@ -59,7 +59,7 @@ export default function CompanyServices() {
 
             <div
               className="roomCard"
-              onClick={() => navigate(`/preview/${room.id}`)}
+              onClick={() => navigate(`/preview/rooms/${room.id}`)}
             >
               <div className="roomImage" />
               <div className="roomInfo">

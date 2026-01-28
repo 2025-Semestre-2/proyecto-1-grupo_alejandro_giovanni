@@ -1,10 +1,29 @@
 import PageTop from "./components/PageTop";
 import PageTopContent from "./components/PageTopContent";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Profile.css";
+import { useAuth } from "./context/AuthContext";
 
 import { FaUserCircle } from "react-icons/fa";
+
+const generateFakeUserProfile = ({ userid }) => {
+  return {
+    id: userid,
+    name: "Juan Pérez",
+    birthDate: "12/03/1995",
+    identification: "1-2345-6789",
+    country: "Costa Rica",
+    email: "juan@email.com",
+    phone: "+506 8888-8888",
+    address: {
+      province: "San José",
+      canton: "Central",
+      district: "Carmen",
+      details: "200m norte del parque",
+    },
+  };
+};
 
 function Profile() {
   const { userid } = useParams();
@@ -99,6 +118,16 @@ function Profile() {
     }
   };
 
+  const { session, isAdmin } = useAuth();
+
+  const isOwnProfile = session?.userId === userid;
+  const canEditProfile = isOwnProfile || isAdmin;
+
+  const userProfile = useMemo(
+    () => generateFakeUserProfile({ userid }),
+    [userid],
+  );
+
   return (
     <>
       <PageTopContent>
@@ -112,69 +141,78 @@ function Profile() {
 
           <div className="userHeader">
             <FaUserCircle className="userIcon" />
-            <span className="userName">Juan Pérez</span>
+            <span className="userName">{userProfile.name}</span>
           </div>
 
           <div className="infoRow">
             <div>
               <small>Fecha Nacimiento</small>
-              <p>12/03/1995</p>
+              <p>{userProfile.birthDate}</p>
             </div>
             <div>
               <small>Identificación</small>
-              <p>1-2345-6789</p>
+              <p>{userProfile.identification}</p>
             </div>
             <div>
               <small>País de Residencia</small>
-              <p>Costa Rica</p>
+              <p>{userProfile.country}</p>
             </div>
           </div>
 
           <div className="infoRow">
             <div>
               <small>Correo Electrónico</small>
-              <p>juan@email.com</p>
+              <p>{userProfile.email}</p>
             </div>
 
             <div>
               <small>Teléfono</small>
-              <p>+506 8888-8888</p>
+              <p>{userProfile.phone}</p>
             </div>
 
             <div>
               <small>Dirección</small>
               <div className="addressBlock">
-                <p>San José</p>
-                <p>Central</p>
-                <p>Carmen</p>
-                <p>200m norte del parque</p>
+                <p>{userProfile.address.province}</p>
+                <p>{userProfile.address.canton}</p>
+                <p>{userProfile.address.district}</p>
+                <p>{userProfile.address.details}</p>
               </div>
             </div>
           </div>
 
-          <div className="profileButtons">
-            <button
-              className="buttonMain cancel"
-              onClick={() => navigate(`/editUserInfo/${userid}`)}
-            >
-              Editar Información
-            </button>
-            <button className="buttonMain cancel" onClick={() => navigate(`/passwordChange/${"user"}/${userid}`)}>Cambiar Contraseña</button>
-            <button
-              className="buttonMain delete"
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Esta acción no se puede deshacer. ¿Desea continuar?",
-                  )
-                ) {
-                  navigate("/");
-                }
-              }}
-            >
-              Eliminar Cuenta
-            </button>
-          </div>
+          {canEditProfile && (
+            <div className="profileButtons">
+              <button
+                className="buttonMain cancel"
+                onClick={() => navigate(`/editUserInfo/${userid}`)}
+              >
+                Editar Información
+              </button>
+
+              <button
+                className="buttonMain cancel"
+                onClick={() => navigate(`/passwordChange/user/${userid}`)}
+              >
+                Cambiar Contraseña
+              </button>
+
+              <button
+                className="buttonMain delete"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Esta acción no se puede deshacer. ¿Desea continuar?",
+                    )
+                  ) {
+                    navigate("/");
+                  }
+                }}
+              >
+                Eliminar Cuenta
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Derecha */}
@@ -191,7 +229,9 @@ function Profile() {
                 <div
                   key={booking.id}
                   className="historyCard"
-                  onClick={() => navigate(`/preview/${booking.roomId}`)}
+                  onClick={() =>
+                    navigate(`/preview/${"rooms"}/${booking.roomId}`)
+                  }
                 >
                   <div className="historyImage" />
 

@@ -333,7 +333,7 @@ function Search() {
               <div
                 key={item.id}
                 className="roomCard"
-                onClick={() => navigate(`/preview/${item.id}`)}
+                onClick={() => navigate(`/preview/${role}/${item.id}`)}
               >
                 <div className="roomImage" />
                 <div className="roomInfo">

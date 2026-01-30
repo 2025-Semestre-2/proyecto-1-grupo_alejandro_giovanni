@@ -6,7 +6,7 @@ export function AuthProvider({ children }) {
   // CAMBIAR DESPUES
   const session = {
     isLoggedIn: true,
-    role: "user",  // "guest", "user", "admin", "company_hosting", "company_entertainment"
+    role: "admin",  // "guest", "user", "admin", "company_hosting", "company_entertainment"
     userId: "12",
     userName: "Juan Pérez",
     companyId: "34",

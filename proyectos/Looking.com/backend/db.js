@@ -3,11 +3,11 @@ import sql from "mssql";
 const config = {
     user: 'LookingUser',
     password: 'StrongPassword123!',
-    server: 'localhost',          // or 'localhost\\SQLEXPRESS'
+    server: 'localhost',
     database: 'LookingDB',
     options: {
-        encrypt: true,            // SQL Server requires this
-        trustServerCertificate: true // trust self-signed cert
+        encrypt: true,
+        trustServerCertificate: true
     },
     pool: {
         max: 10,

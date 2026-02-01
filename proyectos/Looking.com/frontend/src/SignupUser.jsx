@@ -25,6 +25,13 @@ function SignupUser() {
     password: "",
   });
 
+  const ID_TYPES = [
+    { id: 1, name: "Pasaporte" },
+    { id: 2, name: "DIMEX" },
+    { id: 3, name: "Cédula Nacional" },
+    { id: 4, name: "Otro" },
+  ];
+
   const isCostaRica = form.country === "Costa Rica";
   const showExtraPhone = form.phone.length > 0;
 
@@ -42,13 +49,14 @@ function SignupUser() {
         <label>Tipo de Identificación</label>
         <select
           value={form.idType}
-          onChange={(e) => setForm({ ...form, idType: e.target.value })}
+          onChange={(e) => setForm({ ...form, idType: Number(e.target.value) })}
         >
           <option value="">Seleccione</option>
-          <option>Pasaporte</option>
-          <option>DIMEX</option>
-          <option>Cédula Nacional</option>
-          <option>Otro</option>
+          {ID_TYPES.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -75,7 +83,19 @@ function SignupUser() {
         <input
           type="tel"
           value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          onChange={(e) => {
+            let phone = e.target.value;
+
+            phone = phone.replace(/[^0-9+]/g, "");
+
+            if (phone.indexOf("+") > 0) {
+              phone = phone.replace(/\+/g, "");
+              phone = "+" + phone;
+            }
+
+            setForm({ ...form, phone });
+          }}
+          placeholder="+50612345678"
         />
       </div>
 
@@ -158,9 +178,9 @@ function SignupUser() {
               }
             >
               <option value="">Seleccione Provincia</option>
-              {Object.keys(COSTA_RICA_LOCATIONS).map((province) => (
-                <option key={province} value={province}>
-                  {province}
+              {COSTA_RICA_LOCATIONS.map((prov) => (
+                <option key={prov.id} value={prov.name}>
+                  {prov.name}
                 </option>
               ))}
             </select>
@@ -172,18 +192,21 @@ function SignupUser() {
               <select
                 value={form.canton}
                 onChange={(e) =>
-                  setForm({ ...form, canton: e.target.value, district: "" })
+                  setForm({
+                    ...form,
+                    canton: e.target.value,
+                    district: "",
+                  })
                 }
               >
                 <option value="">Seleccione Cantón</option>
-
-                {Object.keys(COSTA_RICA_LOCATIONS[form.province]).map(
-                  (canton) => (
-                    <option key={canton} value={canton}>
-                      {canton}
-                    </option>
-                  ),
-                )}
+                {COSTA_RICA_LOCATIONS.find(
+                  (prov) => prov.name === form.province,
+                ).cantons.map((canton) => (
+                  <option key={canton.id} value={canton.name}>
+                    {canton.name}
+                  </option>
+                ))}
               </select>
             </div>
           )}
@@ -193,17 +216,20 @@ function SignupUser() {
               <label>Distrito</label>
               <select
                 value={form.district}
-                onChange={(e) => setForm({ ...form, district: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, district: Number(e.target.value) })
+                }
               >
                 <option value="">Seleccione Distrito</option>
-
-                {COSTA_RICA_LOCATIONS[form.province][form.canton].map(
-                  (district) => (
-                    <option key={district} value={district}>
-                      {district}
+                {COSTA_RICA_LOCATIONS.find(
+                  (prov) => prov.name === form.province,
+                )
+                  .cantons.find((c) => c.name === form.canton)
+                  .districts.map((district) => (
+                    <option key={district.id} value={district.id}>
+                      {district.name}
                     </option>
-                  ),
-                )}
+                  ))}
               </select>
             </div>
           )}
@@ -232,7 +258,54 @@ function SignupUser() {
         </div>
       </div>
 
-      <button className="buttonMain fullWidth" onClick={() => navigate("/")}>Crear Cuenta</button>
+      <button
+        className="buttonMain fullWidth"
+        onClick={async () => {
+          if (!/^\+[0-9]{8,16}$/.test(form.phone)) {
+            alert(
+              "Número inválido. Debe empezar con + y tener entre 8 y 16 dígitos.",
+            );
+            return;
+          }
+          try {
+            const response = await fetch(
+              "http://localhost:3001/crear-usuario",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: form.email,
+                  password: form.password,
+                  name: form.name,
+                  lastName1: form.lastName1,
+                  lastName2: form.lastName2,
+                  birthDate: form.birthDate,
+                  idType: form.idType,
+                  idNumber: form.idNumber,
+                  country: form.country,
+                  district: form.district,
+                  phone: form.phone,
+                  extraPhone: form.extraPhone,
+                }),
+              },
+            );
+
+            const data = await response.json();
+
+            if (data.success) {
+              alert("Usuario creado correctamente");
+              navigate("/login"); // redirect to login
+            } else {
+              alert("Error: " + data.error);
+            }
+          } catch (err) {
+            console.error(err);
+            alert("Error al crear el usuario");
+          }
+        }}
+      >
+        Crear Cuenta
+      </button>
     </div>
   );
 }

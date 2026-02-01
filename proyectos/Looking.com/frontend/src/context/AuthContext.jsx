@@ -5,8 +5,8 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   // CAMBIAR DESPUES
   const session = {
-    isLoggedIn: true,
-    role: "admin",  // "guest", "user", "admin", "company_hosting", "company_entertainment"
+    isLoggedIn: false,
+    role: "guest",  // "guest", "user", "admin", "company_hosting", "company_entertainment"
     userId: "12",
     userName: "Juan Pérez",
     companyId: "34",

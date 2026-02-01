@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { GoogleMap, Marker, useJsApiLoader, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import COSTA_RICA_LOCATIONS from "./data/crLocations";
 import "./SignupUser.css";
 
@@ -24,32 +24,57 @@ function SignupCompany() {
     website: "",
     password: "",
     amenities: [],
+    location: null,
   });
 
   const amenitiesList = [
-    "Wifi",
-    "Piscina",
-    "Parqueo",
-    "Aire Acondicionado",
-    "Cocina",
-    "Lavadora",
+    { id: 1, name: "Wifi" },
+    { id: 2, name: "Piscina" },
+    { id: 3, name: "Parqueo" },
+    { id: 4, name: "Aire Acondicionado" },
+    { id: 5, name: "Cocina" },
+    { id: 6, name: "Lavadora" },
   ];
 
   const addAmenity = () => {
-    setForm({ ...form, amenities: [...form.amenities, ""] });
+    setForm((prev) => ({
+      ...prev,
+      amenities: [...prev.amenities, ""],
+    }));
   };
 
   const updateAmenity = (index, value) => {
-    const updated = [...form.amenities];
-    updated[index] = value;
-    setForm({ ...form, amenities: updated });
+    setForm((prev) => {
+      const newAmenities = [...prev.amenities];
+      newAmenities[index] = value;
+      return { ...prev, amenities: newAmenities };
+    });
   };
 
   const removeAmenity = (index) => {
-    setForm({
-      ...form,
-      amenities: form.amenities.filter((_, i) => i !== index),
+    setForm((prev) => {
+      const newAmenities = [...prev.amenities];
+      newAmenities.splice(index, 1);
+      return { ...prev, amenities: newAmenities };
     });
+  };
+
+  const handleRegister = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/registrar-empresa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error desconocido");
+
+      alert("Empresa registrada exitosamente!");
+      navigate("/");
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
   };
 
   return (
@@ -63,18 +88,22 @@ function SignupCompany() {
 
       <div className="formGroup">
         <label>Tipo de Empresa</label>
+
         <select
           value={form.companyType}
-          onChange={(e) => setForm({ ...form, companyType: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, companyType: parseInt(e.target.value) })
+          }
         >
           <option value="">Seleccione</option>
-          <option>Hotel</option>
-          <option>Hostal</option>
-          <option>Casa</option>
-          <option>Departamento</option>
-          <option>Cuarto Compartido</option>
+
+          <option value={1}>Recreación</option>
           <option disabled>────────────</option>
-          <option>Recreación</option>
+          <option value={2}>Hotel</option>
+          <option value={3}>Hostal</option>
+          <option value={4}>Casa</option>
+          <option value={5}>Departamento</option>
+          <option value={6}>Cuarto Compartido</option>
         </select>
       </div>
 
@@ -139,8 +168,10 @@ function SignupCompany() {
           }
         >
           <option value="">Seleccione Provincia</option>
-          {Object.keys(COSTA_RICA_LOCATIONS).map((prov) => (
-            <option key={prov}>{prov}</option>
+          {COSTA_RICA_LOCATIONS.map((prov) => (
+            <option key={prov.id} value={prov.name}>
+              {prov.name}
+            </option>
           ))}
         </select>
       </div>
@@ -159,8 +190,12 @@ function SignupCompany() {
             }
           >
             <option value="">Seleccione Cantón</option>
-            {Object.keys(COSTA_RICA_LOCATIONS[form.province]).map((canton) => (
-              <option key={canton}>{canton}</option>
+            {COSTA_RICA_LOCATIONS.find(
+              (prov) => prov.name === form.province,
+            ).cantons.map((canton) => (
+              <option key={canton.id} value={canton.name}>
+                {canton.name}
+              </option>
             ))}
           </select>
         </div>
@@ -174,11 +209,13 @@ function SignupCompany() {
             onChange={(e) => setForm({ ...form, district: e.target.value })}
           >
             <option value="">Seleccione Distrito</option>
-            {COSTA_RICA_LOCATIONS[form.province][form.canton].map(
-              (district) => (
-                <option key={district}>{district}</option>
-              ),
-            )}
+            {COSTA_RICA_LOCATIONS.find((prov) => prov.name === form.province)
+              .cantons.find((c) => c.name === form.canton)
+              .districts.map((district) => (
+                <option key={district.id} value={district.name}>
+                  {district.name}
+                </option>
+              ))}
           </select>
         </div>
       )}
@@ -208,19 +245,26 @@ function SignupCompany() {
             mapContainerStyle={{ width: "100%", height: "250px" }}
             center={{ lat: 9.7489, lng: -83.7534 }}
             zoom={7}
-            onClick={(e) =>
-              setForm({
-                ...form,
-                location: {
-                  lat: e.latLng.lat(),
-                  lng: e.latLng.lng(),
-                },
-              })
-            }
+            onClick={(e) => {
+              const lat = e.latLng.lat();
+              const lng = e.latLng.lng();
+
+              setForm((prevForm) => ({
+                ...prevForm,
+                location: { lat, lng },
+              }));
+            }}
           >
             {form.location && <Marker position={form.location} />}
           </GoogleMap>
         </LoadScript>
+
+        {form.location && (
+          <div className="coordinates" style={{ marginTop: "8px" }}>
+            <strong>Latitud:</strong> {form.location.lat.toFixed(6)} |{" "}
+            <strong>Longitud:</strong> {form.location.lng.toFixed(6)}
+          </div>
+        )}
       </div>
 
       <div className="formGroup">
@@ -235,15 +279,17 @@ function SignupCompany() {
       <div className="formGroup">
         <label>Amenidades</label>
 
-        {form.amenities.map((amenity, i) => (
+        {form.amenities.map((amenityId, i) => (
           <div key={i} className="amenityRow">
             <select
-              value={amenity}
+              value={amenityId}
               onChange={(e) => updateAmenity(i, e.target.value)}
             >
               <option value="">Seleccione Amenidad</option>
               {amenitiesList.map((a) => (
-                <option key={a}>{a}</option>
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
               ))}
             </select>
 
@@ -279,7 +325,9 @@ function SignupCompany() {
         </div>
       </div>
 
-      <button className="buttonMain fullWidth" onClick={() => navigate("/")}>Registrar</button>
+      <button className="buttonMain fullWidth" onClick={handleRegister}>
+        Registrar
+      </button>
     </div>
   );
 }

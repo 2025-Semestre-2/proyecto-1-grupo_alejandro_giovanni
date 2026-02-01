@@ -13,14 +13,42 @@ function PasswordChange() {
     confirmPassword: "",
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (form.password !== form.confirmPassword) {
       alert("Las contraseñas no coinciden");
       return;
     }
-    console.log("Role:", role, "ID:", id, "New password:", form.password);
 
-    navigate("/");
+    try {
+      const response = await fetch(
+        "http://localhost:3001/change-password",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            role,
+            id,
+            password: form.password,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Error al cambiar la contraseña");
+        return;
+      }
+
+      alert("Contraseña actualizada correctamente");
+      navigate("/");
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("No se pudo conectar con el servidor");
+    }
   };
 
   return (

@@ -1,132 +1,75 @@
 import PageTop from "./components/PageTop";
 import PageTopContent from "./components/PageTopContent";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Profile.css";
-import { useAuth } from "./context/AuthContext";
 
 import { FaUserCircle } from "react-icons/fa";
-
-const generateFakeUserProfile = ({ userid }) => {
-  return {
-    id: userid,
-    name: "Juan Pérez",
-    birthDate: "12/03/1995",
-    identification: "1-2345-6789",
-    country: "Costa Rica",
-    email: "juan@email.com",
-    phone: "+506 8888-8888",
-    address: {
-      province: "San José",
-      canton: "Central",
-      district: "Carmen",
-      details: "200m norte del parque",
-    },
-  };
-};
 
 function Profile() {
   const { userid } = useParams();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
 
-  const bookings = [
-    {
-      id: 1,
-      roomId: 12,
-      name: "Apartamento en Pococí",
-      date: "7/1/2025",
-      reservationNumber: 1234,
-      nights: 2,
-      people: 2,
-      checkIn: "1 p.m.",
-      vehicle: false,
-      start: "7 Feb",
-      end: "9 Feb",
-      total: 140000,
-      pricePerNight: 70000,
-    },
-    {
-      id: 2,
-      roomId: 8,
-      name: "Casa en Jacó",
-      date: "10/2/2025",
-      reservationNumber: 5678,
-      nights: 3,
-      people: 4,
-      checkIn: "3 p.m.",
-      vehicle: true,
-      start: "10 Mar",
-      end: "13 Mar",
-      total: 300000,
-      pricePerNight: 100000,
-    },
-    {
-      id: 3,
-      roomId: 21,
-      name: "Apartamento en San José",
-      date: "15/3/2025",
-      reservationNumber: 9101,
-      nights: 1,
-      people: 1,
-      checkIn: "2 p.m.",
-      vehicle: false,
-      start: "15 Apr",
-      end: "16 Apr",
-      total: 50000,
-      pricePerNight: 50000,
-    },
-    {
-      id: 4,
-      roomId: 5,
-      name: "Villa en Guanacaste",
-      date: "20/4/2025",
-      reservationNumber: 1121,
-      nights: 5,
-      people: 6,
-      checkIn: "12 p.m.",
-      vehicle: true,
-      start: "20 May",
-      end: "25 May",
-      total: 600000,
-      pricePerNight: 120000,
-    },
-    {
-      id: 5,
-      roomId: 17,
-      name: "Apartamento frente al mar en Limón",
-      date: "1/5/2025",
-      reservationNumber: 3141,
-      nights: 2,
-      people: 3,
-      checkIn: "2 p.m.",
-      vehicle: false,
-      start: "1 Jun",
-      end: "3 Jun",
-      total: 180000,
-      pricePerNight: 90000,
-    },
-  ];
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/whoamisession", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setSession(data);
+      } catch (err) {
+        console.error("Error fetching session:", err);
+        setSession({ loggedIn: false });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSession();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3001/user-profile/${userid}`,
+          {
+            credentials: "include",
+          },
+        );
+        const data = await res.json();
+        setUserProfile(data.userProfile);
+        setBookings(data.bookings);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [userid]);
+
+  if (loading || !userProfile) {
+    return <div>Cargando perfil...</div>;
+  }
+
+  const isOwnProfile = session?.usuarioId === userid;
+  const canEditProfile = isOwnProfile || session?.role === "admin";
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const width = scrollRef.current.offsetWidth; // scroll by visible width
+      const width = scrollRef.current.offsetWidth;
       scrollRef.current.scrollBy({
         left: direction * width,
         behavior: "smooth",
       });
     }
   };
-
-  const { session, isAdmin } = useAuth();
-
-  const isOwnProfile = session?.userId === userid;
-  const canEditProfile = isOwnProfile || isAdmin;
-
-  const userProfile = useMemo(
-    () => generateFakeUserProfile({ userid }),
-    [userid],
-  );
 
   return (
     <>
@@ -199,13 +142,36 @@ function Profile() {
 
               <button
                 className="buttonMain delete"
-                onClick={() => {
+                onClick={async () => {
                   if (
-                    window.confirm(
+                    !window.confirm(
                       "Esta acción no se puede deshacer. ¿Desea continuar?",
                     )
                   ) {
+                    return;
+                  }
+
+                  try {
+                    const response = await fetch(
+                      `http://localhost:3001/api/cliente/${userid}`,
+                      {
+                        method: "DELETE",
+                        credentials: "include",
+                      },
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                      alert(data.message || "Error al eliminar la cuenta");
+                      return;
+                    }
+
+                    alert("Cuenta eliminada correctamente");
                     navigate("/");
+                  } catch (error) {
+                    console.error("Error deleting account:", error);
+                    alert("No se pudo conectar con el servidor");
                   }
                 }}
               >

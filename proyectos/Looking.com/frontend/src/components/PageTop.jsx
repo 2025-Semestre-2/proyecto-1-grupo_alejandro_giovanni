@@ -13,12 +13,11 @@ function PageTop() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch session on mount
   useEffect(() => {
     const fetchSession = async () => {
       try {
         const res = await fetch("http://localhost:3001/whoamisession", {
-          credentials: "include", // important to send cookies
+          credentials: "include",
         });
         const data = await res.json();
         setSession(data);
@@ -34,7 +33,6 @@ function PageTop() {
 
   if (loading) return <div className="header">Cargando...</div>;
 
-  // Local variables based on session
   const isGuest = !session || !session.loggedIn;
   const isUser = session?.role === "user";
   const isAdmin = session?.role === "admin";
@@ -105,7 +103,7 @@ function PageTop() {
 
               <button
                 className="profileButton"
-                onClick={() => navigate(`/profile/${session.userId}`)}
+                onClick={() => navigate(`/profile/${session.usuarioId}`)}
               >
                 <span>{displayName}</span>
                 <FaUserCircle size={30} />
@@ -141,7 +139,7 @@ function PageTop() {
 
               <button
                 className="profileButton"
-                onClick={() => navigate(`/companyProfile/${session.userId}`)}
+                onClick={() => navigate(`/companyProfile/${session.usuarioId}`)}
               >
                 <span title={displayName}>{displayName.slice(0, 30)}</span>
                 <FaHome size={30} />

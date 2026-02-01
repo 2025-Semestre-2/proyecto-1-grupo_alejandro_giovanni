@@ -2,8 +2,7 @@ import PageTop from "./components/PageTop";
 import PageTopContent from "./components/PageTopContent";
 import { useNavigate, useParams } from "react-router-dom";
 import "./CompanyProfile.css";
-import { useRef } from "react";
-import { useAuth } from "./context/AuthContext";
+import { useRef, useState, useEffect } from "react";
 
 import { FaUserCircle } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa";
@@ -74,17 +73,6 @@ const generateFakeCompanyProfile = ({ companyid }) => {
 };
 
 function CompanyProfile() {
-  const mockRooms = Array.from({ length: 8 }).map((_, i) => ({
-    id: i + 1,
-    name: `Habitación ${i + 1}`,
-    desc: "Cómoda habitación cerca del centro",
-    meta: "2 cuartos · 3 camas",
-    price: "₡65,000 / noche",
-  }));
-
-  const latitude = 9.93333;
-  const longitude = -84.08333;
-
   const { companyid } = useParams();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
@@ -99,13 +87,32 @@ function CompanyProfile() {
     });
   };
 
-  const { session, isAdmin } = useAuth();
-  const isOwnCompany = session?.companyId === companyid;
-  const canEditCompany = isOwnCompany || isAdmin;
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const company = generateFakeCompanyProfile({ companyid });
 
-  const isRecreationCompany = company.companyType === "Recreación";
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/whoamisession", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setSession(data);
+      } catch (err) {
+        console.error("Error fetching session:", err);
+        setSession({ loggedIn: false });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSession();
+  }, []);
+
+  const isOwnCompany = session?.usuarioId === companyid;
+  const canEditCompany = isOwnCompany || session?.role === "admin";
+  const isRecreationCompany = session?.role === "company_entertainment";
 
   return (
     <>

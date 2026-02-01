@@ -1,38 +1,117 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./SignupUser.css";
 import COSTA_RICA_LOCATIONS from "./data/crLocations";
 
-// Single mock user
-const MOCK_USER = {
-  idType: "Cédula Nacional",
-  idNumber: "123456789",
-  email: "giovanni@example.com",
-  phone: "88881234",
-  extraPhone: "",
-  name: "Giovanni",
-  lastName1: "Esquivel",
-  lastName2: "Cortés",
-  birthDate: "1990-05-06",
-  country: "Costa Rica",
-  province: "San José",
-  canton: "Central",
-  district: "Carmen",
-};
-
 function EditUserInfo() {
   const navigate = useNavigate();
-  const { userid } = useParams(); // Will be used later for backend call
-  const [form, setForm] = useState(MOCK_USER); // Autofilled immediately
+  const { userid } = useParams();
+  const [form, setForm] = useState(null);
+
+  const handleSave = async () => {
+  try {
+    const payload = {
+      ClienteId: Number(userid),
+
+      Nombre: form.name,
+      Apellido1: form.lastName1,
+      Apellido2: form.lastName2 || null,
+      FechaNacimiento: form.birthDate,
+
+      TipoIdentificacionId: ID_TYPE_MAP[form.idType],
+      NumeroIdentificacion: form.idNumber,
+
+      PaisResidencia: form.country,
+      IdDistrito: form.district ? Number(form.district) : null, // 👈 INT again
+
+      Telefono1: form.phone,
+      Telefono2: form.extraPhone || null,
+
+      CorreoContacto: form.email,
+    };
+
+    const res = await fetch(
+      `http://localhost:3001/clientes-update/${userid}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      },
+    );
+
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(error);
+    }
+
+    navigate("/");
+  } catch (err) {
+    console.error("Error updating client:", err);
+    alert("Error al guardar los cambios");
+  }
+};
+
+  const ID_TYPE_MAP = {
+    "Cédula Nacional": 3,
+    Pasaporte: 1,
+    DIMEX: 2,
+    Otro: 4,
+  };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3001/user-form-autofill/${userid}`,
+          {
+            credentials: "include",
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch user");
+        }
+
+        const data = await res.json();
+
+        setForm({
+          idType: "Cédula Nacional",
+          idNumber: data.NumeroIdentificacion || "",
+          email: data.CorreoCliente || data.CorreoUsuario || "",
+          phone: data.Telefono1 || "",
+          extraPhone: data.Telefono2 || "",
+          name: data.Nombre || "",
+          lastName1: data.Apellido1 || "",
+          lastName2: data.Apellido2 || "",
+          birthDate: data.FechaNacimiento
+            ? data.FechaNacimiento.split("T")[0]
+            : "",
+          country: data.PaisResidencia || "",
+          province: data.Provincia || "",
+          canton: data.Canton || "",
+          district: data.DistritoId ? String(data.DistritoId) : "",
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, [userid]);
+
+  useEffect(() => {
+    setForm((prev) => (prev ? { ...prev, district: "" } : prev));
+  }, [form?.canton]);
+
+  if (!form) {
+    return <div className="signupPage">Cargando información...</div>;
+  }
 
   const isCostaRica = form.country === "Costa Rica";
   const showExtraPhone = form.phone.length > 0;
-
-  const handleSave = () => {
-    console.log("Saving user info:", form);
-    // Replace with backend PUT request later
-    navigate("/");
-  };
 
   return (
     <div className="signupPage">
@@ -133,7 +212,13 @@ function EditUserInfo() {
         <select
           value={form.country}
           onChange={(e) =>
-            setForm({ ...form, country: e.target.value, province: "", canton: "", district: "" })
+            setForm({
+              ...form,
+              country: e.target.value,
+              province: "",
+              canton: "",
+              district: "",
+            })
           }
         >
           <option value="">Seleccione</option>
@@ -151,13 +236,18 @@ function EditUserInfo() {
             <select
               value={form.province}
               onChange={(e) =>
-                setForm({ ...form, province: e.target.value, canton: "", district: "" })
+                setForm({
+                  ...form,
+                  province: e.target.value,
+                  canton: "",
+                  district: "",
+                })
               }
             >
               <option value="">Seleccione Provincia</option>
-              {Object.keys(COSTA_RICA_LOCATIONS).map((province) => (
-                <option key={province} value={province}>
-                  {province}
+              {COSTA_RICA_LOCATIONS.map((prov) => (
+                <option key={prov.id} value={prov.name}>
+                  {prov.name}
                 </option>
               ))}
             </select>
@@ -168,12 +258,22 @@ function EditUserInfo() {
               <label>Cantón</label>
               <select
                 value={form.canton}
-                onChange={(e) => setForm({ ...form, canton: e.target.value, district: "" })}
+                onChange={(e) => {
+                  const newCanton = e.target.value;
+
+                  setForm((prev) => ({
+                    ...prev,
+                    canton: newCanton,
+                    district: prev.canton === newCanton ? prev.district : "",
+                  }));
+                }}
               >
                 <option value="">Seleccione Cantón</option>
-                {Object.keys(COSTA_RICA_LOCATIONS[form.province]).map((canton) => (
-                  <option key={canton} value={canton}>
-                    {canton}
+                {COSTA_RICA_LOCATIONS.find(
+                  (prov) => prov.name === form.province,
+                ).cantons.map((canton) => (
+                  <option key={canton.id} value={canton.name}>
+                    {canton.name}
                   </option>
                 ))}
               </select>
@@ -188,11 +288,15 @@ function EditUserInfo() {
                 onChange={(e) => setForm({ ...form, district: e.target.value })}
               >
                 <option value="">Seleccione Distrito</option>
-                {COSTA_RICA_LOCATIONS[form.province][form.canton].map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
+                {COSTA_RICA_LOCATIONS.find(
+                  (prov) => prov.name === form.province,
+                )
+                  ?.cantons.find((c) => c.name === form.canton)
+                  ?.districts.map((district) => (
+                    <option key={district.id} value={String(district.id)}>
+                      {district.name}
+                    </option>
+                  ))}
               </select>
             </div>
           )}

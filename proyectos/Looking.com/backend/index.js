@@ -44,8 +44,8 @@ app.get("/whoamisession", (req, res) => {
 
   res.json({
     loggedIn: true,
-    userId: req.session.usuarioId,
-    usuarioId: req.session.uniqueId,
+    usuarioId: req.session.usuarioId,
+    uniqueId: req.session.uniqueId,
     role: req.session.role,
     name: req.session.name,
   });
@@ -244,5 +244,256 @@ app.post("/registrar-empresa", async (req, res) => {
   } catch (err) {
     console.error("ERROR registering company:", err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+//change-password cliente y empresa
+app.post("/change-password", async (req, res) => {
+  const { role, id, password } = req.body;
+
+  if (!role || !id || !password) {
+    return res.status(400).json({
+      message: "Role, id y password son requeridos",
+    });
+  }
+
+  try {
+    const pool = await getConnection();
+
+    await pool
+      .request()
+      .input("UniqueId", sql.NVarChar(50), id)
+      .input("Rol", sql.NVarChar(20), role)
+      .input("PasswordHash", sql.VarChar(255), password)
+      .execute("dbo.sp_ActualizarPasswordUsuario");
+
+    return res.json({
+      message: "Contraseña actualizada correctamente",
+    });
+  } catch (error) {
+    console.error("Error changing password:", error);
+
+    if (error.number) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Error interno del servidor",
+    });
+  }
+});
+
+//user-profile con reservaciones
+app.get("/user-profile/:userid", async (req, res) => {
+  const { userid } = req.params;
+
+  try {
+    const pool = await getConnection(); // your mssql connection
+
+    const result = await pool
+      .request()
+      .input("ClienteId", sql.Int, parseInt(userid)).query(`
+        SELECT *
+        FROM dbo.fn_ClienteDetalle(@ClienteId)
+      `);
+
+    if (!result.recordset || result.recordset.length === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const userData = result.recordset[0];
+
+    // Reservaciones is returned as JSON string by SQL, so parse it
+    let bookings = [];
+    if (userData.Reservaciones) {
+      bookings = JSON.parse(userData.Reservaciones).map((r, index) => ({
+        id: r.ReservacionId,
+        roomId: r.ReservacionId, // or some room id if available
+        name: r.TipoHabitacionNombre || "Reserva",
+        date: new Date(r.FechaHoraIngreso).toLocaleDateString("es-CR"),
+        reservationNumber: r.ReservacionId,
+        nights: r.Noches,
+        people: r.CantidadPersonas,
+        checkIn: new Date(r.FechaHoraIngreso).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        vehicle: r.TieneVehiculo,
+        start: new Date(r.FechaHoraIngreso).toLocaleDateString("es-CR", {
+          month: "short",
+          day: "numeric",
+        }),
+        end: new Date(r.FechaSalida).toLocaleDateString("es-CR", {
+          month: "short",
+          day: "numeric",
+        }),
+        total: r.TotalPagar,
+        pricePerNight: r.Noches > 0 ? r.TotalPagar / r.Noches : r.TotalPagar,
+      }));
+    }
+
+    // Build frontend-friendly user profile
+    const userProfile = {
+      id: userData.ClienteId,
+      name: [userData.Nombre, userData.Apellido1, userData.Apellido2]
+        .filter(Boolean) // removes null, undefined, empty string
+        .join(" "),
+      birthDate: new Date(userData.FechaNacimiento).toLocaleDateString("es-CR"),
+      identification: userData.NumeroIdentificacion,
+      country: userData.PaisResidencia,
+      email: userData.CorreoCliente || userData.CorreoUsuario,
+      phone: userData.Telefono1 || userData.Telefono2,
+      address: {
+        province: userData.Provincia,
+        canton: userData.Canton,
+        district: userData.DistritoNombre,
+        details: "", // add more details if available in DB
+      },
+    };
+
+    res.json({ userProfile, bookings });
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
+//user-form-autofill para EditUserInfo
+app.get("/user-form-autofill/:userid", async (req, res) => {
+  const { userid } = req.params;
+
+  if (!userid) {
+    return res.status(400).json({ message: "ClienteId is required" });
+  }
+
+  try {
+    const pool = await getConnection();
+
+    const result = await pool
+      .request()
+      .input("ClienteId", sql.Int, Number(userid))
+      .query(`
+        SELECT *
+        FROM dbo.fn_ClienteDetalleLite(@ClienteId)
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: "Cliente not found" });
+    }
+
+    res.json(result.recordset[0]);
+  } catch (error) {
+    console.error("Error fetching cliente:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+//clientes-update para EditUserInfo
+app.put("/clientes-update/:clienteId", async (req, res) => {
+  const clienteId = Number(req.params.clienteId);
+
+  console.log(req.params.clienteId, "Mi pais")
+
+  const {
+    Nombre,
+    Apellido1,
+    Apellido2,
+    FechaNacimiento,
+    TipoIdentificacionId,
+    NumeroIdentificacion,
+    PaisResidencia,
+    IdDistrito,
+    Telefono1,
+    Telefono2,
+    CorreoContacto,
+  } = req.body;
+
+  if (!clienteId) {
+    return res.status(400).json({ error: "ClienteId inválido" });
+  }
+
+  try {
+    const pool = await getConnection();
+
+    await pool
+      .request()
+      .input("ClienteId", sql.Int, clienteId)
+      .input("Nombre", sql.NVarChar(120), Nombre)
+      .input("Apellido1", sql.NVarChar(120), Apellido1)
+      .input("Apellido2", sql.NVarChar(120), Apellido2 || null)
+      .input("FechaNacimiento", sql.Date, FechaNacimiento)
+      .input("TipoIdentificacionId", sql.Int, TipoIdentificacionId)
+      .input("NumeroIdentificacion", sql.NVarChar(50), NumeroIdentificacion)
+      .input("PaisResidencia", sql.NVarChar(100), PaisResidencia)
+      .input(
+        "IdDistrito",
+        sql.Int,
+        IdDistrito ? Number(IdDistrito) : null,
+      )
+      .input("Telefono1", sql.NVarChar(16), Telefono1)
+      .input("Telefono2", sql.NVarChar(16), Telefono2 || null)
+      .input("CorreoContacto", sql.NVarChar(254), CorreoContacto)
+      .execute("sp_ActualizarCliente");
+
+    // Successful update
+    res.sendStatus(204);
+  } catch (err) {
+    console.error("Error ejecutando sp_ActualizarCliente:", err);
+
+    // SQL THROW 50001 (Cliente no existe)
+    if (err.number === 50001) {
+      return res.status(404).json({ error: "Cliente no existe" });
+    }
+
+    res.status(500).json({ error: "Error actualizando cliente" });
+  }
+});
+
+app.delete("/api/cliente/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({
+      message: "ClienteId es requerido",
+    });
+  }
+
+  try {
+    const pool = await getConnection();
+
+    await pool
+      .request()
+      .input("ClienteId", sql.Int, userId)
+      .execute("dbo.sp_EliminarClienteYUsuario");
+
+    // Destroy session (logout)
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({
+          message: "Cuenta eliminada, pero no se pudo cerrar la sesión",
+        });
+      }
+
+      res.clearCookie("sid"); // same cookie name you already use
+
+      return res.json({
+        message: "Cuenta eliminada y sesión cerrada correctamente",
+      });
+    });
+  } catch (error) {
+    console.error("Error deleting account:", error);
+
+    if (error.number) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Error interno del servidor",
+    });
   }
 });

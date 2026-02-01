@@ -17,65 +17,14 @@ const SOCIAL_ICONS = {
   twitter: FaTwitter,
 };
 
-const generateFakeCompanyProfile = ({ companyid }) => {
-  return {
-    id: companyid,
-    name: "Looking.com",
-    legalId: "3102703047",
-    companyType: "Recreación", //Recreación, Apartamentos
-
-    website: "https://looking.com", // optional
-
-    amenities: [
-      "Wi-Fi de alta velocidad",
-      "Parqueo gratuito",
-      "Limpieza incluida",
-      "Aire acondicionado",
-      "Agua caliente",
-      "Televisión por cable / Smart TV",
-      "Cocina equipada",
-      "Ropa de cama y toallas",
-      "Acceso seguro",
-      "Pet-friendly",
-    ], // optional
-
-    contact: {
-      email: "juan@email.com",
-      phone: "+506 8888-8888",
-      address: {
-        province: "San José",
-        canton: "Central",
-        district: "Carmen",
-        details: "200m norte del parque",
-      },
-    },
-
-    location: {
-      latitude: 9.93333,
-      longitude: -84.08333,
-    },
-
-    socialMedia: [
-      { name: "facebook", url: "https://facebook.com" },
-      { name: "instagram", url: "https://instagram.com" },
-      { name: "whatsapp", url: "https://wa.me/50688888888" },
-      { name: "twitter", url: "https://twitter.com" },
-    ], // optional
-
-    services: Array.from({ length: 8 }).map((_, i) => ({
-      id: i + 1,
-      name: `Habitación ${i + 1}`,
-      desc: "Cómoda habitación cerca del centro",
-      meta: "2 cuartos · 3 camas",
-      price: "₡65,000 / noche",
-    })),
-  };
-};
-
 function CompanyProfile() {
   const { companyid } = useParams();
   const navigate = useNavigate();
   const scrollRef = useRef(null);
+
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [company, setCompany] = useState(null);
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
@@ -86,11 +35,6 @@ function CompanyProfile() {
       behavior: "smooth",
     });
   };
-
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const company = generateFakeCompanyProfile({ companyid });
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -110,9 +54,36 @@ function CompanyProfile() {
     fetchSession();
   }, []);
 
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3001/company-profile/${companyid}`,
+          {
+            credentials: "include",
+          },
+        );
+
+        if (!res.ok) throw new Error("Empresa no encontrada");
+
+        const data = await res.json();
+        setCompany(data);
+      } catch (err) {
+        console.error("Error fetching company:", err);
+      }
+    };
+
+    fetchCompany();
+  }, [companyid]);
+
   const isOwnCompany = session?.usuarioId === companyid;
   const canEditCompany = isOwnCompany || session?.role === "admin";
-  const isRecreationCompany = session?.role === "company_entertainment";
+  const isRecreationCompany =
+    company?.companyType?.toLowerCase() === "recreación";
+
+  if (loading || !company) {
+    return <div className="loading">Cargando perfil...</div>;
+  }
 
   return (
     <>
@@ -133,7 +104,7 @@ function CompanyProfile() {
           <div className="infoRow">
             <div>
               <small>Cédula Jurídica</small>
-              <p>{company.legalId}</p>
+              <p>{company.cedulaJuridica}</p>
             </div>
 
             <div>
@@ -188,6 +159,7 @@ function CompanyProfile() {
             <div>
               <small>Teléfono</small>
               <p>{company.contact.phone}</p>
+              <p>{company.contact.phone2}</p>
             </div>
 
             <div>
@@ -261,13 +233,30 @@ function CompanyProfile() {
 
               <button
                 className="buttonMain delete"
-                onClick={() => {
+                onClick={async () => {
                   if (
                     window.confirm(
                       "Esta acción no se puede deshacer. ¿Desea continuar?",
                     )
                   ) {
-                    navigate("/");
+                    try {
+                      const response = await fetch(
+                        `http://localhost:3001/companies/${form.legalId}`,
+                        {
+                          method: "DELETE",
+                        },
+                      );
+
+                      if (!response.ok) {
+                        throw new Error("Error eliminando la empresa");
+                      }
+
+                      alert("Empresa eliminada correctamente");
+                      navigate("/");
+                    } catch (error) {
+                      console.error(error);
+                      alert("No se pudo eliminar la empresa");
+                    }
                   }
                 }}
               >

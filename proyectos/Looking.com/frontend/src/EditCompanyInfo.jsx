@@ -1,56 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import COSTA_RICA_LOCATIONS from "./data/crLocations";
 import "./SignupUser.css";
 
-const SOCIAL_MEDIA_PLATFORMS = ["Facebook", "Instagram", "WhatsApp", "Twitter"];
+const SOCIAL_MEDIA_PLATFORMS = [
+  { id: 1, name: "Facebook" },
+  { id: 2, name: "Instagram" },
+  { id: 3, name: "WhatsApp" },
+  { id: 4, name: "Twitter" },
+];
 
-const MOCK_COMPANY = {
-  companyType: "Hotel",
-  legalId: "3-101-123456",
-  email: "hotelmock@example.com",
-  phone: "88881234",
-  phone2: "87771234",
-  name: "Hotel Mockup",
-  province: "San José",
-  canton: "Central",
-  district: "Carmen",
-  neighborhood: "Barrio Central",
-  exactAddress: "Avenida Central 123",
-  website: "https://www.hotelmock.com",
-  amenities: ["Wifi", "Piscina"],
-  location: { lat: 9.9333, lng: -84.0833 },
-
-  socialMedia: [
-    { platform: "Facebook", url: "https://facebook.com/hotelmock" },
-    { platform: "Instagram", url: "https://instagram.com/hotelmock" },
-  ],
+const COMPANY_TYPE_NAME_TO_ID = {
+  Recreación: 1,
+  Hotel: 2,
+  Hostal: 3,
+  Casa: 4,
+  Departamento: 5,
+  "Cuarto Compartido": 6,
 };
 
 function EditCompanyInfo() {
   const navigate = useNavigate();
   const { companyid } = useParams();
 
-  const [form, setForm] = useState(MOCK_COMPANY);
+  const [form, setForm] = useState(null);
 
   const amenitiesList = [
-    "Wifi",
-    "Piscina",
-    "Parqueo",
-    "Aire Acondicionado",
-    "Cocina",
-    "Lavadora",
+    { id: 1, name: "Wifi" },
+    { id: 2, name: "Piscina" },
+    { id: 3, name: "Parqueo" },
+    { id: 4, name: "Aire Acondicionado" },
+    { id: 5, name: "Cocina" },
+    { id: 6, name: "Lavadora" },
   ];
 
   const addAmenity = () =>
     setForm({ ...form, amenities: [...form.amenities, ""] });
+
   const updateAmenity = (index, value) => {
     const updated = [...form.amenities];
     updated[index] = value;
     setForm({ ...form, amenities: updated });
   };
+
   const removeAmenity = (index) =>
     setForm({
       ...form,
@@ -60,18 +54,70 @@ function EditCompanyInfo() {
   const addSocialMedia = () =>
     setForm({
       ...form,
-      socialMedia: [...form.socialMedia, { platform: "", url: "" }],
+      socialMedia: [...form.socialMedia, { platformId: "", url: "" }],
     });
+
   const updateSocialMedia = (index, key, value) => {
     const updated = [...form.socialMedia];
     updated[index][key] = value;
     setForm({ ...form, socialMedia: updated });
   };
+
   const removeSocialMedia = (index) =>
     setForm({
       ...form,
       socialMedia: form.socialMedia.filter((_, i) => i !== index),
     });
+
+  useEffect(() => {
+    if (!companyid) return;
+
+    const fetchCompany = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3001/company-form-autofill/${companyid}`,
+          { credentials: "include" },
+        );
+
+        if (!res.ok) throw new Error("Error loading company");
+
+        const data = await res.json();
+
+        const resolvedCompanyType =
+          typeof data.companyType === "number"
+            ? data.companyType
+            : (COMPANY_TYPE_NAME_TO_ID[data.companyType] ?? "");
+
+        setForm({
+          companyType: resolvedCompanyType,
+          legalId: data.cedulaJuridica || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          phone2: data.phone2 || "",
+          name: data.name || "",
+
+          province: data.province || "",
+          canton: data.canton || "",
+          district: data.district || "",
+
+          neighborhood: data.neighborhood || "",
+          exactAddress: data.exactAddress || "",
+          website: data.website || "",
+          amenities: data.amenities?.length ? data.amenities : [""],
+          location: data.location,
+          socialMedia: data.socialMedia?.length
+            ? data.socialMedia
+            : [{ platform: "", url: "" }],
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCompany();
+  }, [companyid]);
+
+  if (!form) return <p>Cargando información...</p>;
 
   return (
     <div className="signupPage">
@@ -79,18 +125,22 @@ function EditCompanyInfo() {
 
       <div className="formGroup">
         <label>Tipo de Empresa</label>
+
         <select
           value={form.companyType}
-          onChange={(e) => setForm({ ...form, companyType: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, companyType: parseInt(e.target.value) })
+          }
         >
           <option value="">Seleccione</option>
-          <option>Hotel</option>
-          <option>Hostal</option>
-          <option>Casa</option>
-          <option>Departamento</option>
-          <option>Cuarto Compartido</option>
+
+          <option value={1}>Recreación</option>
           <option disabled>────────────</option>
-          <option>Recreación</option>
+          <option value={2}>Hotel</option>
+          <option value={3}>Hostal</option>
+          <option value={4}>Casa</option>
+          <option value={5}>Departamento</option>
+          <option value={6}>Cuarto Compartido</option>
         </select>
       </div>
 
@@ -155,8 +205,10 @@ function EditCompanyInfo() {
           }
         >
           <option value="">Seleccione Provincia</option>
-          {Object.keys(COSTA_RICA_LOCATIONS).map((prov) => (
-            <option key={prov}>{prov}</option>
+          {COSTA_RICA_LOCATIONS.map((prov) => (
+            <option key={prov.id} value={prov.name}>
+              {prov.name}
+            </option>
           ))}
         </select>
       </div>
@@ -171,14 +223,19 @@ function EditCompanyInfo() {
             }
           >
             <option value="">Seleccione Cantón</option>
-            {Object.keys(COSTA_RICA_LOCATIONS[form.province]).map((canton) => (
-              <option key={canton}>{canton}</option>
+
+            {COSTA_RICA_LOCATIONS.find(
+              (p) => p.name === form.province,
+            )?.cantons.map((canton) => (
+              <option key={canton.id} value={canton.name}>
+                {canton.name}
+              </option>
             ))}
           </select>
         </div>
       )}
 
-      {form.canton && (
+      {form.province && form.canton && (
         <div className="formGroup">
           <label>Distrito</label>
           <select
@@ -186,11 +243,14 @@ function EditCompanyInfo() {
             onChange={(e) => setForm({ ...form, district: e.target.value })}
           >
             <option value="">Seleccione Distrito</option>
-            {COSTA_RICA_LOCATIONS[form.province][form.canton].map(
-              (district) => (
-                <option key={district}>{district}</option>
-              ),
-            )}
+
+            {COSTA_RICA_LOCATIONS.find((p) => p.name === form.province)
+              ?.cantons.find((c) => c.name === form.canton)
+              ?.districts.map((district) => (
+                <option key={district.id} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
           </select>
         </div>
       )}
@@ -243,17 +303,20 @@ function EditCompanyInfo() {
 
       <div className="formGroup">
         <label>Amenidades</label>
-        {form.amenities.map((amenity, i) => (
+        {form.amenities.map((amenityId, i) => (
           <div key={i} className="amenityRow">
             <select
-              value={amenity}
-              onChange={(e) => updateAmenity(i, e.target.value)}
+              value={amenityId}
+              onChange={(e) => updateAmenity(i, Number(e.target.value))}
             >
               <option value="">Seleccione Amenidad</option>
               {amenitiesList.map((a) => (
-                <option key={a}>{a}</option>
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
               ))}
             </select>
+
             <button type="button" onClick={() => removeAmenity(i)}>
               <FaTrash />
             </button>
@@ -271,12 +334,16 @@ function EditCompanyInfo() {
         {form.socialMedia.map((s, i) => (
           <div key={i} className="amenityRow">
             <select
-              value={s.platform}
-              onChange={(e) => updateSocialMedia(i, "platform", e.target.value)}
+              value={s.platformId}
+              onChange={(e) =>
+                updateSocialMedia(i, "platformId", Number(e.target.value))
+              }
             >
               <option value="">Seleccione Plataforma</option>
               {SOCIAL_MEDIA_PLATFORMS.map((p) => (
-                <option key={p}>{p}</option>
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
               ))}
             </select>
 
@@ -298,7 +365,31 @@ function EditCompanyInfo() {
         </button>
       </div>
 
-      <button className="buttonMain fullWidth" onClick={() => navigate("/")}>
+      <button
+        className="buttonMain fullWidth"
+        onClick={async () => {
+          try {
+            const res = await fetch(
+              `http://localhost:3001/companies-update/${companyid}`,
+              {
+                method: "PUT",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+              },
+            );
+
+            if (!res.ok) throw new Error("Error saving company");
+
+            navigate("/");
+          } catch (err) {
+            console.error(err);
+            alert("Error al guardar los cambios");
+          }
+        }}
+      >
         Guardar Cambios
       </button>
     </div>

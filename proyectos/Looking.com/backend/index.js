@@ -373,8 +373,7 @@ app.get("/user-form-autofill/:userid", async (req, res) => {
 
     const result = await pool
       .request()
-      .input("ClienteId", sql.Int, Number(userid))
-      .query(`
+      .input("ClienteId", sql.Int, Number(userid)).query(`
         SELECT *
         FROM dbo.fn_ClienteDetalleLite(@ClienteId)
       `);
@@ -394,7 +393,7 @@ app.get("/user-form-autofill/:userid", async (req, res) => {
 app.put("/clientes-update/:clienteId", async (req, res) => {
   const clienteId = Number(req.params.clienteId);
 
-  console.log(req.params.clienteId, "Mi pais")
+  console.log(req.params.clienteId, "Mi pais");
 
   const {
     Nombre,
@@ -427,11 +426,7 @@ app.put("/clientes-update/:clienteId", async (req, res) => {
       .input("TipoIdentificacionId", sql.Int, TipoIdentificacionId)
       .input("NumeroIdentificacion", sql.NVarChar(50), NumeroIdentificacion)
       .input("PaisResidencia", sql.NVarChar(100), PaisResidencia)
-      .input(
-        "IdDistrito",
-        sql.Int,
-        IdDistrito ? Number(IdDistrito) : null,
-      )
+      .input("IdDistrito", sql.Int, IdDistrito ? Number(IdDistrito) : null)
       .input("Telefono1", sql.NVarChar(16), Telefono1)
       .input("Telefono2", sql.NVarChar(16), Telefono2 || null)
       .input("CorreoContacto", sql.NVarChar(254), CorreoContacto)
@@ -451,6 +446,7 @@ app.put("/clientes-update/:clienteId", async (req, res) => {
   }
 });
 
+//api/cliente borra usuario y sesion
 app.delete("/api/cliente/:userId", async (req, res) => {
   const { userId } = req.params;
 
@@ -494,6 +490,288 @@ app.delete("/api/cliente/:userId", async (req, res) => {
 
     return res.status(500).json({
       message: "Error interno del servidor",
+    });
+  }
+});
+
+//company-profile con tipos cuarto
+app.get("/company-profile/:cedulaJuridica", async (req, res) => {
+  const { cedulaJuridica } = req.params;
+
+  try {
+    const pool = await getConnection();
+
+    const result = await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar, cedulaJuridica).query(`
+        SELECT *
+        FROM dbo.fn_EmpresaDetalle(@CedulaJuridica)
+      `);
+
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
+    }
+
+    const row = result.recordset[0];
+
+    res.json({
+      cedulaJuridica: row.CedulaJuridica,
+      name: row.HotelNombre,
+      companyType: row.TipoEmpresa,
+      website: row.SitioWeb,
+
+      contact: {
+        email: row.CorreoContacto,
+        phone: row.Telefono1,
+        phone2: row.Telefono2,
+        address: {
+          province: row.Provincia,
+          canton: row.Canton,
+          district: row.Distrito,
+          details: row.SenasExactas,
+          barrio: row.Barrio,
+        },
+      },
+
+      location: {
+        latitude: row.Latitud,
+        longitude: row.Longitud,
+      },
+
+      socialMedia: row.RedesSociales
+        ? JSON.parse(row.RedesSociales).map((r) => ({
+            id: r.RedSocialId,
+            name: r.RedSocial.toLowerCase(),
+            url: r.Url,
+          }))
+        : [],
+
+      amenities: row.Amenidades
+        ? JSON.parse(row.Amenidades).map((a) => a.Amenidad)
+        : [],
+
+      services: row.TiposHabitacion
+        ? JSON.parse(row.TiposHabitacion).map((t) => ({
+            id: t.TipoHabitacionId,
+            name: t.TipoHabitacionNombre,
+            desc: t.Descripcion,
+            meta: `${t.NumeroDePersonas} personas`,
+            price: `₡${Number(t.Precio).toLocaleString()} / noche`,
+          }))
+        : [],
+    });
+  } catch (error) {
+    console.error("Error obteniendo empresa:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
+//company-form-autofill para EditCompanyInfo
+app.get("/company-form-autofill/:companyid", async (req, res) => {
+  const { companyid } = req.params;
+
+  try {
+    const pool = await getConnection();
+
+    const result = await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar, companyid).query(`
+        SELECT *
+        FROM dbo.fn_EmpresaDetalleLite(@CedulaJuridica)
+      `);
+
+    if (!result.recordset.length) {
+      return res.status(404).json({ message: "Empresa no encontrada" });
+    }
+
+    const row = result.recordset[0];
+
+    res.json({
+      cedulaJuridica: row.CedulaJuridica,
+      name: row.HotelNombre,
+      companyType: row.TipoEmpresa,
+      email: row.CorreoContacto,
+      phone: row.Telefono1,
+      phone2: row.Telefono2,
+      website: row.SitioWeb,
+      neighborhood: row.Barrio,
+      exactAddress: row.SenasExactas,
+
+      province: row.Provincia,
+      canton: row.Canton,
+
+      district: row.IdDistrito ? String(row.IdDistrito) : "",
+
+      location:
+        row.Latitud && row.Longitud
+          ? {
+              lat: Number(row.Latitud),
+              lng: Number(row.Longitud),
+            }
+          : null,
+
+      socialMedia: row.RedesSociales
+        ? JSON.parse(row.RedesSociales).map((r) => ({
+            platformId: r.RedSocialId,
+            url: r.Url,
+          }))
+        : [],
+
+      amenities: row.Amenidades
+        ? JSON.parse(row.Amenidades).map((a) => a.AmenidadId)
+        : [],
+    });
+  } catch (err) {
+    console.error("Error fetching company:", err);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+});
+
+//company-update para EditCompanyInfo
+app.put("/companies-update/:companyid", async (req, res) => {
+  const { companyid } = req.params;
+  const data = req.body;
+
+  try {
+    const pool = await getConnection();
+
+    // =========================
+    // 1. Update Empresa
+    // =========================
+    await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar, companyid)
+      .input("Nombre", sql.NVarChar, data.name)
+      .input("TipoEmpresaId", sql.Int, data.companyType)
+      .input("CorreoContacto", sql.NVarChar, data.email)
+      .input("Telefono1", sql.NVarChar, data.phone)
+      .input("Telefono2", sql.NVarChar, data.phone2 || null)
+      .input("SitioWeb", sql.NVarChar, data.website || null)
+      .input("IdDistrito", sql.Int, Number(data.district)) // 👈 STRING → INT
+      .input("Barrio", sql.NVarChar, data.neighborhood || null)
+      .input("SenasExactas", sql.NVarChar, data.exactAddress)
+      .input("Latitud", sql.Decimal(9, 6), data.location?.lat ?? null)
+      .input("Longitud", sql.Decimal(9, 6), data.location?.lng ?? null)
+      .execute("dbo.sp_Empresa_Update");
+
+    // =========================
+    // 2. Sync Amenidades
+    // =========================
+    const currentAmenities = await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar, companyid).query(`
+        SELECT AmenidadId
+        FROM dbo.AmenidadesPorEmpresa
+        WHERE CedulaJuridica = @CedulaJuridica
+      `);
+
+    const currentAmenityIds = currentAmenities.recordset.map(
+      (a) => a.AmenidadId,
+    );
+
+    const newAmenityIds = data.amenities || [];
+
+    // Delete removed
+    for (const amenidadId of currentAmenityIds) {
+      if (!newAmenityIds.includes(amenidadId)) {
+        await pool
+          .request()
+          .input("CedulaJuridica", sql.NVarChar, companyid)
+          .input("AmenidadId", sql.Int, amenidadId)
+          .execute("dbo.sp_AmenidadEmpresa_Delete");
+      }
+    }
+
+    // Add new
+    for (const amenidadId of newAmenityIds) {
+      if (!currentAmenityIds.includes(amenidadId)) {
+        await pool
+          .request()
+          .input("CedulaJuridica", sql.NVarChar, companyid)
+          .input("AmenidadId", sql.Int, amenidadId)
+          .execute("dbo.sp_AmenidadEmpresa_Add");
+      }
+    }
+
+    // =========================
+    // 3. Sync Redes Sociales
+    // =========================
+    const currentReds = await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar, companyid).query(`
+        SELECT RedSocialId, Url
+        FROM dbo.RedesPorEmpresa
+        WHERE CedulaJuridica = @CedulaJuridica
+      `);
+
+    const currentMap = new Map(
+      currentReds.recordset.map((r) => [r.RedSocialId, r.Url]),
+    );
+
+    const incoming = data.socialMedia || [];
+
+    // Delete removed
+    for (const redId of currentMap.keys()) {
+      if (!incoming.find((r) => r.platformId === redId)) {
+        await pool
+          .request()
+          .input("CedulaJuridica", sql.NVarChar, companyid)
+          .input("RedSocialId", sql.Int, redId)
+          .execute("dbo.sp_RedEmpresa_Delete");
+      }
+    }
+
+    // Add or update
+    for (const red of incoming) {
+      if (currentMap.has(red.platformId)) {
+        if (currentMap.get(red.platformId) !== red.url) {
+          await pool
+            .request()
+            .input("CedulaJuridica", sql.NVarChar, companyid)
+            .input("RedSocialId", sql.Int, red.platformId)
+            .input("Url", sql.NVarChar, red.url)
+            .execute("dbo.sp_RedEmpresa_UpdateUrl");
+        }
+      } else {
+        await pool
+          .request()
+          .input("CedulaJuridica", sql.NVarChar, companyid)
+          .input("RedSocialId", sql.Int, red.platformId)
+          .input("Url", sql.NVarChar, red.url)
+          .execute("dbo.sp_RedEmpresa_Add");
+      }
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(500).json({
+      message: err.message || "Error actualizando la empresa",
+    });
+  }
+});
+
+//api/cliente borra usuario y sesion (EN CASCADA)
+app.delete("/companies/:cedulaJuridica", async (req, res) => {
+  const { cedulaJuridica } = req.params;
+
+  if (!cedulaJuridica) {
+    return res.status(400).json({ error: "Cedula jurídica requerida" });
+  }
+
+  try {
+    const pool = await sql.connect(dbConfig);
+
+    await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar(50), cedulaJuridica)
+      .execute("sp_Empresa_Delete");
+
+    res.status(200).json({ message: "Empresa eliminada correctamente" });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({
+      error: err.message || "Error eliminando la empresa",
     });
   }
 });

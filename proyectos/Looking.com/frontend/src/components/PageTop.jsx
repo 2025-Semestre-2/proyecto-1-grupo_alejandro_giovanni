@@ -1,25 +1,48 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./PageTop.css";
 
 import { FaUserCircle } from "react-icons/fa";
 import { FaHome } from "react-icons/fa";
-
-import { useAuth } from "../context/AuthContext";
 
 function PageTop() {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
 
-  const {
-    session,
-    isGuest,
-    isUser,
-    isAdmin,
-    isCompany,
-    isHostingCompany,
-    isEntertainmentCompany,
-  } = useAuth();
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch session on mount
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/whoamisession", {
+          credentials: "include", // important to send cookies
+        });
+        const data = await res.json();
+        setSession(data);
+      } catch (err) {
+        console.error("Error fetching session:", err);
+        setSession({ loggedIn: false });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSession();
+  }, []);
+
+  if (loading) return <div className="header">Cargando...</div>;
+
+  // Local variables based on session
+  const isGuest = !session || !session.loggedIn;
+  const isUser = session?.role === "user";
+  const isAdmin = session?.role === "admin";
+  const isHostingCompany = session?.role === "company_hosting";
+  const isEntertainmentCompany = session?.role === "company_entertainment";
+  const isCompany = isHostingCompany || isEntertainmentCompany;
+
+  const displayName = session?.name || "";
 
   return (
     <>
@@ -56,7 +79,27 @@ function PageTop() {
 
           {(isUser || isAdmin) && (
             <>
-              <button className="buttonSub2" onClick={() => navigate("/")}>
+              <button
+                className="buttonSub2"
+                onClick={async () => {
+                  try {
+                    const res = await fetch("http://localhost:3001/logout", {
+                      method: "POST",
+                      credentials: "include",
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                      console.error("Logout error:", data.error);
+                      return;
+                    }
+
+                    window.location.href = "/";
+                  } catch (err) {
+                    console.error("Failed to logout:", err);
+                  }
+                }}
+              >
                 Cerrar Sesión
               </button>
 
@@ -64,7 +107,7 @@ function PageTop() {
                 className="profileButton"
                 onClick={() => navigate(`/profile/${session.userId}`)}
               >
-                <span>{session.userName}</span>
+                <span>{displayName}</span>
                 <FaUserCircle size={30} />
               </button>
             </>
@@ -72,17 +115,35 @@ function PageTop() {
 
           {isCompany && (
             <>
-              <button className="buttonSub2" onClick={() => navigate("/")}>
+              <button
+                className="buttonSub2"
+                onClick={async () => {
+                  try {
+                    const res = await fetch("http://localhost:3001/logout", {
+                      method: "POST",
+                      credentials: "include",
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                      console.error("Logout error:", data.error);
+                      return;
+                    }
+
+                    window.location.href = "/";
+                  } catch (err) {
+                    console.error("Failed to logout:", err);
+                  }
+                }}
+              >
                 Cerrar Sesión
               </button>
 
               <button
                 className="profileButton"
-                onClick={() => navigate(`/companyProfile/${session.companyId}`)}
+                onClick={() => navigate(`/companyProfile/${session.userId}`)}
               >
-                <span title={session.companyName}>
-                  {session.companyName.slice(0, 30)}
-                </span>
+                <span title={displayName}>{displayName.slice(0, 30)}</span>
                 <FaHome size={30} />
               </button>
             </>
@@ -94,13 +155,13 @@ function PageTop() {
         <div className="searchSelector">
           <button
             className="buttonSub"
-            onClick={() => navigate(`/search/${"rooms"}`)}
+            onClick={() => navigate(`/search/rooms`)}
           >
             Reservaciones
           </button>
           <button
             className="buttonSub"
-            onClick={() => navigate(`/search/${"activities"}`)}
+            onClick={() => navigate(`/search/activities`)}
           >
             Actividades
           </button>
@@ -166,7 +227,6 @@ function PageTop() {
           </button>
         </div>
       )}
-
 
       {isHome && (isGuest || isUser) && (
         <>

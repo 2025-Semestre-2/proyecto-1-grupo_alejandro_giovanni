@@ -5,6 +5,38 @@ import "./Login.css";
 function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    setError("");
+
+    if (!email || !password) {
+      setError("Por favor ingrese correo y contraseña");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:3001/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Credenciales inválidas");
+        return;
+      }
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      setError("Error al conectar con el servidor");
+    }
+  };
 
   return (
     <div className="loginPage">
@@ -17,13 +49,15 @@ function Login() {
 
         <p className="loginLinks">
           ¿No tienes una cuenta?{" "}
-          <span onClick={() => navigate("/signup-user")}>Crear Cuenta</span>
+          <span onClick={() => navigate("/signupUser")}>Crear Cuenta</span>
           <br />
           ¿No has registrado tu empresa?{" "}
-          <span onClick={() => navigate("/register-business")}>
+          <span onClick={() => navigate("/signupCompany")}>
             Registrar Empresa
           </span>
         </p>
+
+        {error && <p className="errorMessage">{error}</p>}
 
         <div className="formGroup">
           <label>Correo Electrónico</label>
@@ -31,6 +65,8 @@ function Login() {
             type="email"
             placeholder="correo@ejemplo.com"
             className="loginInput"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
@@ -41,6 +77,8 @@ function Login() {
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               className="loginInput"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <button
@@ -53,7 +91,9 @@ function Login() {
           </div>
         </div>
 
-        <button className="buttonMain fullWidth" onClick={() => navigate("/")}>Iniciar Sesión</button>
+        <button className="buttonMain fullWidth" onClick={handleLogin}>
+          Iniciar Sesión
+        </button>
       </div>
     </div>
   );

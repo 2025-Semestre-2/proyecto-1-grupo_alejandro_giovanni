@@ -1,7 +1,7 @@
+import session from "express-session";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import session from "express-session";
 import { getConnection, sql } from "./db.js";
 
 dotenv.config();
@@ -9,11 +9,46 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
+
+app.use(
+  session({
+    name: "sid",
+    secret: process.env.SESSION_SECRET || "default_secret_key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  }),
+);
 
 app.get("/whoami", (req, res) => {
   res.send({ user: process.env.USERNAME || process.env.USER });
+});
+
+// Get current session info
+app.get("/whoamisession", (req, res) => {
+  if (!req.session || !req.session.usuarioId) {
+    return res.json({ loggedIn: false });
+  }
+
+  res.json({
+    loggedIn: true,
+    userId: req.session.usuarioId,
+    usuarioId: req.session.uniqueId,
+    role: req.session.role,
+    name: req.session.name,
+  });
 });
 
 app.get("/", (req, res) => {
@@ -35,7 +70,49 @@ app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const pool = await getConnection();
+    const result = await pool
+      .request()
+      .input("Correo", sql.NVarChar(254), email)
+      .input("PasswordHash", sql.VarChar(255), password)
+      .execute("sp_LoginUsuario");
+
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    const user = result.recordset[0];
+
+    req.session.usuarioId = user.IdUsuario;
+    req.session.uniqueId = user.UsuarioID;
+    req.session.role = user.Role;
+    req.session.name = user.Name;
+
+    res.json({ message: "Logged in successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+function authMiddleware(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: "No autorizado" });
+  }
+  next();
+}
+
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ error: "No se pudo cerrar sesión" });
+    res.clearCookie("sid"); // matches cookie name
+    res.json({ message: "Sesión cerrada" });
+  });
+});
 
 //crear-usuario cliente
 app.post("/crear-usuario", async (req, res) => {

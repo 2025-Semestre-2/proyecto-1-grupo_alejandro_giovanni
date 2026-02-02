@@ -775,3 +775,81 @@ app.delete("/companies/:cedulaJuridica", async (req, res) => {
     });
   }
 });
+
+//company-room-types para ver tipos de cuarto de una empresa en particular
+app.get("/company-room-types", async (req, res) => {
+  try {
+    if (!req.session || !req.session.usuarioId) {
+      return res.status(401).json({ error: "No authenticated session" });
+    }
+
+    const cedulaJuridica = req.session.usuarioId;
+
+    const pool = await getConnection();
+
+    const result = await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar(50), cedulaJuridica).query(`
+        SELECT *
+        FROM dbo.fn_GetTipoHabitacionesByEmpresa(@CedulaJuridica)
+      `);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error("Error fetching rooms:", error);
+    res.status(500).json({ error: "Error fetching rooms" });
+  }
+});
+
+//new-room-type nuevo tipo de cuarto
+app.post("/new-room-type", async (req, res) => {
+  try {
+    if (!req.session?.usuarioId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const cedulaJuridica = req.session.usuarioId;
+
+    const pool = await getConnection();
+
+    await pool
+      .request()
+      .input("CedulaJuridica", sql.NVarChar(50), cedulaJuridica)
+      .input("Nombre", sql.NVarChar(120), "Nueva habitación")
+      .input("Descripcion", sql.NVarChar(400), "Descripción pendiente")
+      .input("Precio", sql.Decimal(12, 2), 0)
+      .input("NumeroDePersonas", sql.Int, 1)
+      .execute("dbo.sp_TipoHabitacion_Add");
+
+    res.status(201).json({ success: true });
+  } catch (err) {
+    console.error("Error creating room type:", err);
+    res.status(500).json({ error: "Error creating room type" });
+  }
+});
+
+//company-room-types borra tipo habitacion
+app.delete("/company-room-types/:id", async (req, res) => {
+  try {
+    if (!req.session?.usuarioId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const tipoHabitacionId = parseInt(req.params.id, 10);
+
+    const pool = await getConnection();
+
+    await pool
+      .request()
+      .input("TipoHabitacionId", sql.Int, tipoHabitacionId)
+      .execute("dbo.sp_TipoHabitacion_Delete");
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error deleting room type:", err);
+
+    res.status(500).json({
+      error: err.message || "Error deleting room type",
+    });
+  }
+});
